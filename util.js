@@ -183,7 +183,7 @@ util.loadSeedSpec = function(seedName, cb) {
   var seedsDir = './tests/seeds';
 
   function loadSpec(data, cb) {
-    console.log("Loading spec...", seedName, data);
+    //console.log("Loading spec...", seedName, data);
     var location = [seedsDir, seedName, 'seed.json'].join('/');
     util.getJSON(location, cb);
   };
@@ -210,7 +210,7 @@ util.loadSeed = function (seedName, cb) {
   }
 
   var loadRequiredSeeds = util.async.each({
-    before: function(seed) { console.log("Loading referenced seeds", seedName); },
+    // before: function(seed) { console.log("Loading referenced seeds", seedName); },
     selector: function(seed) { return seed.requires; },
     iterator: function(seedName, seed, cb) {
       if (!seedName) return cb(null, seed);
@@ -235,7 +235,7 @@ util.loadSeed = function (seedName, cb) {
   }
 
   var loadLocalStoreSeeds = util.async.each({
-    before: function(seed) { console.log("Loading local store seeds for", seedName); },
+    // before: function(seed) { console.log("Loading local store seeds for", seedName); },
     selector: function(seed) { return seed.localNames; },
     iterator: function(resourceName, seed, cb) {
       if (!resourceName) return cb(null, seed);
@@ -249,7 +249,7 @@ util.loadSeed = function (seedName, cb) {
   });
 
   var loadRemoteStoreSeeds = util.async.each({
-    before: function(seed) { console.log("Loading remote store seeds for", seedName); },
+    // before: function(seed) { console.log("Loading remote store seeds for", seedName); },
     selector: function(seed) { return seed.remoteNames; },
     iterator: function(resourceName, seed, cb) {
       if (!resourceName) return cb(null, seed);
