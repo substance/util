@@ -21,6 +21,10 @@ util.isArray = function(obj) {
   return ( Object.prototype.toString.call(obj) === '[object Array]');
 };
 
+util.isString = function(obj) {
+  return (Object.prototype.toString.call(obj) === '[object String]');
+};
+
 util.update = function(obj, withObj) {
   for (var key in withObj) {
     obj[key] = withObj[key];
@@ -100,12 +104,14 @@ function util_async_each(options) {
 
     // TODO: discuss convention for iterator function signatures.
     // trying to achieve a combination of underscore and node.js callback style
-    function arrayFunction(item) {
+    function arrayFunction(item, index) {
       return function(data, cb) {
         if (iterator.length === 2) {
           iterator(item, cb);
+        } else if (iterator.length === 3) {
+          iterator(item, index, cb);
         } else {
-          iterator(item, data, cb);
+          iterator(item, index, data, cb);
         }
       };
     }
@@ -124,13 +130,14 @@ function util_async_each(options) {
 
     if (isArray) {
       for (var idx = 0; idx < items.length; idx++) {
-        funcs.push(arrayFunction(items[idx]));
+        funcs.push(arrayFunction(items[idx], idx));
       }
     } else {
       for (var key in items) {
         funcs.push(objectFunction(items[key], key));
       }
     }
+
     //console.log("Iterator:", iterator, "Funcs:", funcs);
     util.async(funcs, data, cb);
   };
@@ -139,15 +146,14 @@ function util_async_each(options) {
 // Creates an each-iterator for util.async chains
 // -----------
 //
-//     var func = util.async.each(items, function(item, [data,] cb) { ... });
+//     var func = util.async.each(items, function(item, [idx, [data,]] cb) { ... });
 //     var func = util.async.each(options)
 //
 // options:
 //    items:    the items to be iterated
 //    selector: used to select items dynamically from the data provided by the previous function in the chain
 //    before:   an extra function called before iteration
-//    after:    called after iteration
-//    iterator: the iterator function (item, [data,] cb)
+//    iterator: the iterator function (item, [idx, [data,]] cb)
 //       with item: the iterated item,
 //            data: the propagated data (optional)
 //            cb:   the callback
@@ -165,6 +171,13 @@ util.async.each = function(options_or_items, iterator) {
   return util_async_each(options);
 };
 
+util.propagate = function(data, cb) {
+  return function(err, ignoredData) {
+    if (err) return cb(err);
+    cb(null, data);
+  }
+}
+
 // Util to read seed data from file system
 // ----------
 
@@ -179,54 +192,60 @@ util.getJSON = function(resource, cb) {
   }
 }
 
-util.loadSeedSpec = function(seedName, cb) {
-  var seedsDir = './tests/seeds';
+util.prepareSeedSpec = function(seed, cb) {
 
-  function loadSpec(data, cb) {
-    //console.log("Loading spec...", seedName, data);
-    var location = [seedsDir, seedName, 'seed.json'].join('/');
-    util.getJSON(location, cb);
-  };
-
-  function prepareSpec(seed, cb) {
-    seed.localNames = util.isArray(seed.local) ? seed.local : [seed.local];
-    seed.remoteNames = util.isArray(seed.remote) ? seed.remote : [seed.remote];
-    seed.hubName = seed.hub;
+    seed.localFiles = util.isArray(seed.local) ? seed.local : [seed.local];
+    seed.remoteFiles = util.isArray(seed.remote) ? seed.remote : [seed.remote];
+    seed.requires = util.isArray(seed.requires) ? seed.requires : [seed.requires];
+    seed.hubFile = seed.hub;
     seed.hub = {};
     seed.local = {};
     seed.remote = {};
-    cb(null, seed);
-  }
 
-  util.async([loadSpec, prepareSpec], cb);
+    cb(null, seed);
 }
 
-util.loadSeed = function (seedName, cb) {
-
+util.loadSeedSpec = function(seedName, cb) {
   var seedsDir = './tests/seeds';
 
-  var loadSeedSpec = function(data, cb) {
-    util.loadSeedSpec(seedName, cb);
-  }
+  //console.log("Loading spec...", seedName, data);
+  var location = [seedsDir, seedName, 'seed.json'].join('/');
+  util.getJSON(location, function(err, seedSpec) {
+    if (err) return cb(err);
+    // storing the file info into the seed spec
+    seedSpec.dir = [seedsDir, seedName].join('/');;
+    util.prepareSeedSpec(seedSpec, cb);
+  });
+}
+
+util.loadSeed = function (seedSpec, cb) {
+
+  var seedsDir = seedSpec.dir || './tests/seeds';
 
   var loadRequiredSeeds = util.async.each({
     // before: function(seed) { console.log("Loading referenced seeds", seedName); },
     selector: function(seed) { return seed.requires; },
-    iterator: function(seedName, seed, cb) {
+    iterator: function(seedName, idx, seed, cb) {
       if (!seedName) return cb(null, seed);
-      util.loadSeed(seedName, function(err, otherSeed) {
+//      console.log("Loading referenced seed", seedName);
+      util.loadSeedSpec(seedName, function(err, seedSpec) {
+//        console.log("Loaded referenced seed spec", seedSpec);
         if (err) return cb(err);
-        seed.hub = util.update(seed.hub, otherSeed.hub);
-        seed.local = util.update(seed.local, otherSeed.local);
-        seed.remote = util.update(seed.remote, otherSeed.remote);
-        cb(null, seed);
+        util.loadSeed(seedSpec, function(err, otherSeed) {
+          if (err) return cb(err);
+          seed.hub = util.update(seed.hub, otherSeed.hub);
+          seed.local = util.update(seed.local, otherSeed.local);
+          seed.remote = util.update(seed.remote, otherSeed.remote);
+          cb(null, seed);
+        });
       });
     }
   });
 
   function loadHubSeed(seed, cb) {
-    if (!seed.hubName) return cb(null, seed);
-    var location = [seedsDir, seedName, seed.hubName].join('/');
+    if (!seed.hubFile) return cb(null, seed);
+    var location = [seedsDir, seed.hubFile].join('/');
+    console.log("loading hub seed file from", location);
     util.getJSON(location, function(err, hubSeed) {
       if (err) return cb(err);
       seed.hub = util.update(seed.hub, hubSeed);
@@ -236,10 +255,12 @@ util.loadSeed = function (seedName, cb) {
 
   var loadLocalStoreSeeds = util.async.each({
     // before: function(seed) { console.log("Loading local store seeds for", seedName); },
-    selector: function(seed) { return seed.localNames; },
-    iterator: function(resourceName, seed, cb) {
+    selector: function(seed) { return seed.localFiles; },
+    iterator: function(resourceName, idx, seed, cb) {
       if (!resourceName) return cb(null, seed);
-      var location = ['./tests/seeds', seedName, resourceName].join('/');
+      var location = [seedsDir, resourceName].join('/');
+//      console.log("loading local store seed file from", location);
+
       util.getJSON(location, function(err, storeSeed) {
         if (err) return cb(err);
         seed.local = util.update(seed.local, storeSeed);
@@ -250,10 +271,12 @@ util.loadSeed = function (seedName, cb) {
 
   var loadRemoteStoreSeeds = util.async.each({
     // before: function(seed) { console.log("Loading remote store seeds for", seedName); },
-    selector: function(seed) { return seed.remoteNames; },
-    iterator: function(resourceName, seed, cb) {
+    selector: function(seed) { return seed.remoteFiles; },
+    iterator: function(resourceName, idx, seed, cb) {
       if (!resourceName) return cb(null, seed);
-      var location = [seedsDir, seedName, resourceName].join('/');
+      var location = [seedsDir, resourceName].join('/');
+//      console.log("loading remote store seed file from", location);
+
       util.getJSON(location, function(err, storeSeed) {
         if (err) return cb(err);
         seed.remote = util.update(seed.remote, storeSeed);
@@ -262,7 +285,7 @@ util.loadSeed = function (seedName, cb) {
     }
   });
 
-  util.async([loadSeedSpec, loadRequiredSeeds, loadHubSeed, loadLocalStoreSeeds, loadRemoteStoreSeeds], cb);
+  util.async([loadRequiredSeeds, loadHubSeed, loadLocalStoreSeeds, loadRemoteStoreSeeds], seedSpec, cb);
 };
 })(Substance.util);
 
