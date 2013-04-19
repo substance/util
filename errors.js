@@ -10,7 +10,7 @@
   var root = this;
   var errors = {};
 
-  errors.defineError = function(className, code, parent) {
+  errors.define = function(className, code) {
     var errorClass = util.inherits(Error, {
       constructor: function(message) {
         Error.apply(this, arguments);
@@ -27,18 +27,19 @@
       }
     }, {});
 
-    if (exports) {
-      module.exports[className] = errorClass;
+    if (typeof exports !== 'undefined') {
+        module.exports[className] = errorClass;
     } else {
-      root.errors[className] = errorClass;
+      errors[className] = errorClass;
     }
 
     return errorClass;
   }
 
   if (typeof exports === 'undefined') {
-    if (root.Substance === undefined) root.Substance = {};
-    _.extend(root.Substance, errors);
+    if (!root.Substance) root.Substance = {};
+    root.Substance.errors = errors;
+    console.log("Added errors....");
   } else {
     module.exports = errors;
   }

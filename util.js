@@ -1,13 +1,17 @@
 if (typeof Substance === 'undefined') Substance = {};
 if (typeof Substance.util === 'undefined') Substance.util = {};
 
-(function(util){
+(function(ctx){
+
+var util = {};
 
 var env = (typeof exports === 'undefined') ? 'composer' : 'hub';
 
 if (typeof exports !== 'undefined') {
   var fs = require('fs');
   var _ = (env == 'hub') ? require('underscore') : _;
+} else {
+  var _ = ctx._;
 }
 
 // Async Control Flow for the Substance
@@ -332,11 +336,13 @@ util.loadSeed = function (seedSpec, cb) {
 
   util.async([loadRequiredSeeds, loadHubSeed, loadLocalStoreSeeds, loadRemoteStoreSeeds], seedSpec, cb);
 };
-})(Substance.util);
 
 if (typeof exports !== 'undefined') {
-  module.exports = Substance.util;
+  module.exports = util;
 } else {
-  if (!window.Substance) window.Substance = {};
-  window.Substance.util = Substance.util;
+  if (!ctx.Substance) ctx.Substance = {};
+  if (!ctx.Substance.util) ctx.Substance.util = {};
+  _.extend(ctx.Substance.util, util);
 }
+
+})(this);
