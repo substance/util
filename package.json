@@ -1,0 +1,17 @@
+{
+  "name": "substance-utils",
+  "description": "Provides Substance flowers for Substance gardeners.",
+  "keywords": ["substance"],
+  "author": "Oliver Buchtala <oliver.buchtala@gmail.com>",
+  "version": "0.1.0",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/substance/util.git"
+  },
+  "engines": {
+      "node": ">=0.6.0"
+  },
+  "dependencies": {
+    "underscore": "1.4.x"
+  }
+}
