@@ -39,7 +39,6 @@
   if (typeof exports === 'undefined') {
     if (!root.Substance) root.Substance = {};
     root.Substance.errors = errors;
-    console.log("Added errors....");
   } else {
     module.exports = errors;
   }
