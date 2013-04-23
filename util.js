@@ -231,25 +231,6 @@ util.Events.unbind = util.Events.off;
 // Async Control Flow for the Substance
 // --------
 
-util.isFunction = function(obj) {
-  return ( Object.prototype.toString.call(obj) === '[object Function]');
-};
-
-util.isArray = function(obj) {
-  return ( Object.prototype.toString.call(obj) === '[object Array]');
-};
-
-util.isString = function(obj) {
-  return (Object.prototype.toString.call(obj) === '[object String]');
-};
-
-util.update = function(obj, withObj) {
-  for (var key in withObj) {
-    obj[key] = withObj[key];
-  }
-  return obj;
-}
-
 util.async = function(funcs, data_or_cb, cb) {
   var data = null;
 
@@ -311,7 +292,7 @@ function util_async_each(options) {
     // don't do nothing if items is not there
     if (!items) return cb(null, data);
 
-    var isArray = util.isArray(items);
+    var isArray = _.isArray(items);
 
     if (options.before) {
       options.before(data);
@@ -439,8 +420,6 @@ util.inherits = function(parent, protoProps, staticProps) {
   return child;
 };
 
-
-
 // Util to read seed data from file system
 // ----------
 
@@ -449,57 +428,63 @@ util.getJSON = function(resource, cb) {
     var obj = JSON.parse(fs.readFileSync(resource, 'utf8'));
     cb(null, obj);
   } else {
+    console.log("util.getJSON", resource);
     $.getJSON(resource)
       .done(function(obj) { cb(null, obj); })
       .error(function(err) { cb(err, null); });
   }
 }
 
-util.prepareSeedSpec = function(seed, cb) {
+var SEEDS_DIR = "./tests/seeds";
 
-    seed.localFiles = util.isArray(seed.local) ? seed.local : [seed.local];
-    seed.remoteFiles = util.isArray(seed.remote) ? seed.remote : [seed.remote];
-    seed.requires = util.isArray(seed.requires) ? seed.requires : [seed.requires];
-    seed.hubFile = seed.hub;
-    seed.hub = {};
-    seed.local = {};
-    seed.remote = {};
+// To be refactored
 
-    cb(null, seed);
+util.prepareSeedSpec = function(seedSpec, cb) {
+
+    var _seedSpec = {}
+    _seedSpec.localFiles = _.isArray(seedSpec.local) ? seedSpec.local : ((seedSpec.local) ? [seedSpec.local] : []);
+    _seedSpec.remoteFiles = _.isArray(seedSpec.remote) ? seedSpec.remote : ((seedSpec.remote) ? [seedSpec.remote] : []);
+    _seedSpec.requires = _.isArray(seedSpec.requires) ? seedSpec.requires : ((seedSpec.requires) ? [seedSpec.requires] : []);
+    _seedSpec.hubFile = seedSpec.hub;
+    _seedSpec.hub = {};
+    _seedSpec.local = {};
+    _seedSpec.remote = {};
+    _seedSpec.dir = seedSpec.dir;
+
+    cb(null, _seedSpec);
 }
 
-util.loadSeedSpec = function(seedName, cb) {
-  var seedsDir = './tests/seeds';
+util.loadSeedSpec = function (seedName, cb) {
 
   //console.log("Loading spec...", seedName, data);
-  var location = [seedsDir, seedName, 'seed.json'].join('/');
+  var location = [SEEDS_DIR, seedName, 'seed.json'].join('/');
   util.getJSON(location, function(err, seedSpec) {
     if (err) return cb(err);
     // storing the file info into the seed spec
-    seedSpec.dir = [seedsDir, seedName].join('/');;
+    seedSpec.dir = [SEEDS_DIR, seedName].join('/');;
     util.prepareSeedSpec(seedSpec, cb);
   });
 }
 
-util.loadSeed = function (seedSpec, cb) {
+util.loadSeed = function(seedSpec, cb) {
 
-  var seedsDir = seedSpec.dir || './tests/seeds';
+  var seedsDir = seedSpec.dir || SEEDS_DIR;
 
   var loadRequiredSeeds = util.async.each({
     // before: function(seed) { console.log("Loading referenced seeds", seedName); },
-    selector: function(seed) { return seed.requires; },
-    iterator: function(seedName, idx, seed, cb) {
-      if (!seedName) return cb(null, seed);
+    selector: function(seedSpec) { return seedSpec.requires; },
+    iterator: function(seedName, idx, seedSpec, cb) {
+      if (!seedName) return cb(null, seedSpec);
 //      console.log("Loading referenced seed", seedName);
-      util.loadSeedSpec(seedName, function(err, seedSpec) {
+      util.loadSeedSpec(seedName, function(err, otherSeedSpec) {
 //        console.log("Loaded referenced seed spec", seedSpec);
         if (err) return cb(err);
-        util.loadSeed(seedSpec, function(err, otherSeed) {
+        util.loadSeed(otherSeedSpec, function(err, otherSeed) {
           if (err) return cb(err);
-          seed.hub = util.update(seed.hub, otherSeed.hub);
-          seed.local = util.update(seed.local, otherSeed.local);
-          seed.remote = util.update(seed.remote, otherSeed.remote);
-          cb(null, seed);
+          _.extend(seedSpec.hub, otherSeed.hub);
+          _.extend(seedSpec.local, otherSeed.local);
+          _.extend(seedSpec.remote, otherSeed.remote);
+          cb(null, seedSpec);
         });
       });
     }
@@ -511,7 +496,7 @@ util.loadSeed = function (seedSpec, cb) {
     console.log("loading hub seed file from", location);
     util.getJSON(location, function(err, hubSeed) {
       if (err) return cb(err);
-      seed.hub = util.update(seed.hub, hubSeed);
+      _.extend(seed.hub, hubSeed);
       cb(null, seed);
     });
   }
@@ -526,7 +511,7 @@ util.loadSeed = function (seedSpec, cb) {
 
       util.getJSON(location, function(err, storeSeed) {
         if (err) return cb(err);
-        seed.local = util.update(seed.local, storeSeed);
+        _.extend(seed.local, storeSeed);
         cb(null, seed);
       });
     }
@@ -542,7 +527,7 @@ util.loadSeed = function (seedSpec, cb) {
 
       util.getJSON(location, function(err, storeSeed) {
         if (err) return cb(err);
-        seed.remote = util.update(seed.remote, storeSeed);
+        _.extend(seed.remote, storeSeed);
         cb(null, seed);
       });
     }
@@ -550,6 +535,7 @@ util.loadSeed = function (seedSpec, cb) {
 
   util.async([loadRequiredSeeds, loadHubSeed, loadLocalStoreSeeds, loadRemoteStoreSeeds], seedSpec, cb);
 };
+
 
 if (typeof exports !== 'undefined') {
   module.exports = util;
