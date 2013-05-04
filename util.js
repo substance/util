@@ -239,6 +239,7 @@ function callAsynchronousChain(options, cb) {
 
   var index = 0;
   var args = [];
+  var stopOnError = options.stopOnError || true;
 
   function process(data) {
     var func = functions[index];
@@ -253,7 +254,7 @@ function callAsynchronousChain(options, cb) {
     // On errors the given callback will be called and recursion is stopped.
     var recursiveCallback = function(err, data) {
       // stop on error
-      if (err) return _finally(err, null);
+      if (err && stopOnError) return _finally(err, null);
 
       index += 1;
       process(data);
