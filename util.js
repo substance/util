@@ -234,7 +234,7 @@ function callAsynchronousChain(options, cb) {
   var functions = options.functions;
 
   if (!_.isFunction(cb)) {
-    throw "Illegal arguments: a callback function must be provided";
+    return cb("Illegal arguments: a callback function must be provided");
   }
 
   var index = 0;
