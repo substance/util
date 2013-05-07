@@ -262,7 +262,11 @@ function callAsynchronousChain(options, cb) {
 
     // catch exceptions and propagat
     try {
-      func(data, recursiveCallback);
+      if (func.length === 1) {
+        func(recursiveCallback);
+      } else {
+        func(data, recursiveCallback);
+      }
     } catch (err) {
       console.log("util.async caught error:", err.stack);
       _finally(err);
@@ -278,24 +282,7 @@ function callAsynchronousChain(options, cb) {
 // --------
 
 // TODO: use util.async.sequential instead
-util.async = function(funcs, data_or_cb, cb) {
-  var data = null;
-
-  // be tolerant - allow to omit the data argument
-  if (arguments.length == 2) {
-    cb = data_or_cb;
-  } else if (arguments.length == 3) {
-    data = data_or_cb;
-  } else {
-      throw "Illegal arguments.";
-  }
-
-  var options = {
-    data: data,
-    functions: funcs
-  }
-  callAsynchronousChain(options, cb);
-}
+util.async = {};
 
 // Calls a given list of asynchronous functions sequentially
 // -------------------
@@ -305,6 +292,10 @@ util.async = function(funcs, data_or_cb, cb) {
 //    finally:    a function that will always be called at the end, also on errors; optional
 
 util.async.sequential = function(options, cb) {
+  // allow to call this with an array of functions instead of options
+  if(_.isArray(options)) {
+    options = { functions: options };
+  }
   callAsynchronousChain(options, cb);
 }
 
@@ -421,7 +412,7 @@ util.propagate = function(data, cb) {
   if(!_.isFunction(cb)) {
     throw "Illegal argument: provided callback is not a function";
   }
-  return function(err, ignoredData) {
+  return function(err) {
     if (err) return cb(err);
     cb(null, data);
   }
@@ -525,9 +516,9 @@ util.loadSeed = function(seedSpec, cb) {
     selector: function(seedSpec) { return seedSpec.requires; },
     iterator: function(seedName, idx, seedSpec, cb) {
       if (!seedName) return cb(null, seedSpec);
-//      console.log("Loading referenced seed", seedName);
+      console.log("Loading referenced seed", seedName);
       util.loadSeedSpec(seedName, function(err, otherSeedSpec) {
-//        console.log("Loaded referenced seed spec", seedSpec);
+        console.log("Loaded referenced seed spec", seedSpec);
         if (err) return cb(err);
         util.loadSeed(otherSeedSpec, function(err, otherSeed) {
           if (err) return cb(err);
@@ -557,7 +548,7 @@ util.loadSeed = function(seedSpec, cb) {
     iterator: function(resourceName, idx, seed, cb) {
       if (!resourceName) return cb(null, seed);
       var location = [seedsDir, resourceName].join('/');
-//      console.log("loading local store seed file from", location);
+      console.log("loading local store seed file from", location);
 
       util.getJSON(location, function(err, storeSeed) {
         if (err) return cb(err);
@@ -583,9 +574,12 @@ util.loadSeed = function(seedSpec, cb) {
     }
   });
 
-  util.async([loadRequiredSeeds, loadHubSeed, loadLocalStoreSeeds, loadRemoteStoreSeeds], seedSpec, cb);
+  var options = {
+    functions: [loadRequiredSeeds, loadHubSeed, loadLocalStoreSeeds, loadRemoteStoreSeeds],
+    data: seedSpec
+  };
+  util.async.sequential(options, cb);
 };
-
 
 if (typeof exports !== 'undefined') {
   module.exports = util;
