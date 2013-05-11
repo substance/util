@@ -581,6 +581,10 @@ util.loadSeed = function(seedSpec, cb) {
   util.async.sequential(options, cb);
 };
 
+util.prototype = function(that) {
+  return Object.getPrototypeOf ? Object.getPrototypeOf(that) : that.__proto__;
+}
+
 if (typeof exports !== 'undefined') {
   module.exports = util;
 } else {
