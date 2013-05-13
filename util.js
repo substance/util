@@ -14,6 +14,9 @@ if (typeof exports !== 'undefined') {
   var _ = ctx._;
 }
 
+util.callstack = function() {
+  try { throw new Error(); } catch (err) { return err.stack; };
+};
 
 
 // UUID Generator
