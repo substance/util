@@ -268,7 +268,7 @@ function callAsynchronousChain(options, cb) {
         func(data, recursiveCallback);
       }
     } catch (err) {
-      console.log("util.async caught error:", err.stack);
+      console.log("util.async caught error:", err, err.stack);
       _finally(err);
     }
   }
@@ -583,6 +583,10 @@ util.loadSeed = function(seedSpec, cb) {
 
 util.prototype = function(that) {
   return Object.getPrototypeOf ? Object.getPrototypeOf(that) : that.__proto__;
+}
+
+util.callstack = function() {
+  try { throw new Error(); } catch (err) { return err.stack.slice(1); };
 }
 
 if (typeof exports !== 'undefined') {
