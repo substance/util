@@ -589,7 +589,7 @@ util.prototype = function(that) {
 }
 
 util.callstack = function() {
-  try { throw new Error(); } catch (err) { return err.stack.slice(1); };
+  try { throw new Error(); } catch (err) { return err.stack; };
 }
 
 if (typeof exports !== 'undefined') {
