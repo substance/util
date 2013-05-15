@@ -472,7 +472,7 @@ util.getJSON = function(resource, cb) {
     var obj = JSON.parse(fs.readFileSync(resource, 'utf8'));
     cb(null, obj);
   } else {
-    console.log("util.getJSON", resource);
+    //console.log("util.getJSON", resource);
     $.getJSON(resource)
       .done(function(obj) { cb(null, obj); })
       .error(function(err) { cb(err, null); });
@@ -519,9 +519,9 @@ util.loadSeed = function(seedSpec, cb) {
     selector: function(seedSpec) { return seedSpec.requires; },
     iterator: function(seedName, idx, seedSpec, cb) {
       if (!seedName) return cb(null, seedSpec);
-      console.log("Loading referenced seed", seedName);
+      //console.log("Loading referenced seed", seedName);
       util.loadSeedSpec(seedName, function(err, otherSeedSpec) {
-        console.log("Loaded referenced seed spec", seedSpec);
+        //console.log("Loaded referenced seed spec", seedSpec);
         if (err) return cb(err);
         util.loadSeed(otherSeedSpec, function(err, otherSeed) {
           if (err) return cb(err);
@@ -537,7 +537,7 @@ util.loadSeed = function(seedSpec, cb) {
   function loadHubSeed(seed, cb) {
     if (!seed.hubFile) return cb(null, seed);
     var location = [seedsDir, seed.hubFile].join('/');
-    console.log("loading hub seed file from", location);
+    //console.log("loading hub seed file from", location);
     util.getJSON(location, function(err, hubSeed) {
       if (err) return cb(err);
       _.extend(seed.hub, hubSeed);
@@ -551,7 +551,7 @@ util.loadSeed = function(seedSpec, cb) {
     iterator: function(resourceName, idx, seed, cb) {
       if (!resourceName) return cb(null, seed);
       var location = [seedsDir, resourceName].join('/');
-      console.log("loading local store seed file from", location);
+      //console.log("loading local store seed file from", location);
 
       util.getJSON(location, function(err, storeSeed) {
         if (err) return cb(err);
