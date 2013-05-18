@@ -592,6 +592,27 @@ util.callstack = function() {
   try { throw new Error(); } catch (err) { return err.stack; };
 }
 
+// computes the difference of obj1 to obj2
+util.diff = function(obj1, obj2) {
+  if (_.isArray(obj1) && _.isArray(obj2)) {
+    var diff = _.difference(obj2, obj1);
+    // return null in case of equality
+    if (diff.length == 0) return null;
+    else return diff;
+  }
+  if (_.isObject(obj1) && _.isObject(obj2)) {
+    var diff = {};
+    _.each(Object.keys(obj2), function(key) {
+      var d = util.diff(obj1[key], obj2[key]);
+      if (d) diff[key] = d;
+    })
+    // return null in case of equality
+    if (_.isEmpty(diff)) return null;
+    else return diff;
+  }
+  if(obj1 !== obj2) return obj2;
+}
+
 if (typeof exports !== 'undefined') {
   module.exports = util;
 } else {
