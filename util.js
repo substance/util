@@ -390,20 +390,9 @@ util.async.iterator = function(options_or_items, iterator) {
   return asynchronousIterator(options);
 };
 
-util.async.each = function(items, iterator, data, cb) {
-
-  if (argument.length == 3) {
-    cb = data;
-    data = null;
-  }
-
-  var options = {
-    items: items,
-    iterator: iterator
-  }
-
+util.async.each = function(options, cb) {
   // create the iterator and call instantly
-  asynchronousIterator(options)(data, cb);
+  asynchronousIterator(options)(null, cb);
 }
 
 util.propagate = function(data, cb) {
