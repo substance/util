@@ -14,11 +14,6 @@ if (typeof exports !== 'undefined') {
   var _ = ctx._;
 }
 
-util.callstack = function() {
-  try { throw new Error(); } catch (err) { return err.stack; };
-};
-
-
 // UUID Generator
 // -----------------
 
@@ -586,6 +581,28 @@ util.loadSeed = function(seedSpec, cb) {
 
 util.prototype = function(that) {
   return Object.getPrototypeOf ? Object.getPrototypeOf(that) : that.__proto__;
+}
+
+util.inherit = function(__super__, __self__) {
+  var super_proto = _.isFunction(__super__) ? new __super__() : __super__;
+  var proto;
+  if (_.isFunction(__self__)) {
+    __self__.prototype = super_proto;
+    proto = new __self__();
+  } else {
+    var tmp = function(){};
+    tmp.prototype = super_proto;
+    proto = _.extend(new tmp(), __self__);
+  }
+  return proto;
+}
+
+util.pimpl = function(pimpl) {
+  var __pimpl__ = function(self) {
+    this.self = self;
+  };
+  __pimpl__.prototype = pimpl;
+  return function(self) { self = self || this; return new __pimpl__(self); };
 }
 
 util.callstack = function() {
