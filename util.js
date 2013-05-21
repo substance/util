@@ -490,7 +490,44 @@ util.pimpl = function(pimpl) {
 }
 
 util.callstack = function() {
-  try { throw new Error(); } catch (err) { return err.stack; };
+  var SAFARI_STACK_ELEM = /([^@]*)@(.*):(\d+)/;
+  var CHROME_STACK_ELEM = /\s*at ([^(]*)[(](.*):(\d+):(\d+)[)]/;
+  try { throw new Error(); } catch (err) {
+    var idx;
+    var stackTrace = err.stack.split('\n');
+
+    // parse the stack trace: each line is a tuple (function, file, lineNumber)
+    // Note: unfortunately this is interpreter specific
+    // safari: "<function>@<file>:<lineNumber>"
+    // chrome: "at <function>(<file>:<line>:<col>"
+
+    var stack = [];
+    for (idx = 0; idx < stackTrace.length; idx++) {
+      var match = SAFARI_STACK_ELEM.exec(stackTrace[idx]);
+      if (!match) match = CHROME_STACK_ELEM.exec(stackTrace[idx]);
+      if (match) {
+        var entry = {
+          func: match[1],
+          file: match[2],
+          line: match[3],
+          col: match[4] || 0
+        };
+        if (entry.func === "") entry.func = "<anonymous>";
+        stack.push(entry);
+      }
+    }
+
+    return stack.splice(1);
+  }
+}
+
+util.stacktrace = function () {
+  var stack = util.callstack().splice(1);
+  var str = [];
+  _.each(stack, function(s) {
+    str.push(s.file+":"+s.line+":"+s.col+" ("+s.func+")");
+  });
+  return str.join("\n");
 }
 
 // computes the difference of obj1 to obj2
