@@ -1,46 +1,52 @@
-(function() {
+(function(root) {
 
-  if (typeof exports !== 'undefined') {
-    var _ = require('underscore');
-    var util = require('./util')
-  } else {
-     var util = Substance.util;
-  }
+if (typeof exports !== 'undefined') {
+  var _ = require('underscore');
+  var util = require('./util')
+} else {
+   var util = Substance.util;
+}
 
-  var root = this;
-  var errors = {};
+var errors = {};
 
-  errors.define = function(className, code) {
-    var errorClass = util.inherits(Error, {
-      constructor: function(message) {
-        Error.apply(this, arguments);
-        this.message = message;
-      },
-      code: code,
-      name: className,
-      toJSON: function() {
-        return {
-          name: this.name,
-          message: this.message,
-          code: this.code
-        };
-      }
-    }, {});
+SubstanceError = function(name, code, message) {
+  this.message = message;
+  this.name = name;
+  this.code = code;
 
-    if (typeof exports !== 'undefined') {
-        module.exports[className] = errorClass;
-    } else {
-      errors[className] = errorClass;
+  this.stack = util.callstack(1);
+};
+
+SubstanceError.prototype = {
+  toString: function() {
+    return this.name+":"+this.message;
+  },
+  toJSON: function() {
+    return {
+      name: this.name,
+      message: this.message,
+      code: this.code,
+      stack: this.stack
+    };
+  },
+  printStackTrace: function() {
+    for (var idx = 0; idx < this.stack.length; idx++) {
+      var s = this.stack[idx];
+      console.log(s.file+":"+s.line+":"+s.col, "("+s.func+")");
     }
-
-    return errorClass;
   }
+}
 
-  if (typeof exports === 'undefined') {
-    if (!root.Substance) root.Substance = {};
-    root.Substance.errors = errors;
-  } else {
-    module.exports = errors;
-  }
+errors.define = function(className, code) {
+  errors[className] = SubstanceError.bind(null, className, code);
+  errors[className].prototype = SubstanceError.prototype;
+}
 
-}).call(this);
+if (typeof exports === 'undefined') {
+  if (!root.Substance) root.Substance = {};
+  root.Substance.errors = errors;
+} else {
+  module.exports = errors;
+}
+
+})(this);
