@@ -269,14 +269,14 @@ function callAsynchronousChain(options, cb) {
         func(data, recursiveCallback);
       }
     } catch (err) {
-      console.log("util.async caught error:", err, err.stack);
+      console.log("util.async caught error:", err);
+      util.printStackTrace(err);
       _finally(err);
     }
   }
 
   // start processing
   process(data);
-
 }
 
 // Async Control Flow for the Substance
@@ -492,45 +492,75 @@ util.pimpl = function(pimpl) {
   return function(self) { self = self || this; return new __pimpl__(self); };
 }
 
-util.callstack = function() {
+util.parseStackTrace = function(err) {
   var SAFARI_STACK_ELEM = /([^@]*)@(.*):(\d+)/;
   var CHROME_STACK_ELEM = /\s*at ([^(]*)[(](.*):(\d+):(\d+)[)]/;
-  try { throw new Error(); } catch (err) {
-    var idx;
-    var stackTrace = err.stack.split('\n');
 
-    // parse the stack trace: each line is a tuple (function, file, lineNumber)
-    // Note: unfortunately this is interpreter specific
-    // safari: "<function>@<file>:<lineNumber>"
-    // chrome: "at <function>(<file>:<line>:<col>"
+  
+  var idx;
+  var stackTrace = err.stack.split('\n');
 
-    var stack = [];
-    for (idx = 0; idx < stackTrace.length; idx++) {
-      var match = SAFARI_STACK_ELEM.exec(stackTrace[idx]);
-      if (!match) match = CHROME_STACK_ELEM.exec(stackTrace[idx]);
-      if (match) {
-        var entry = {
-          func: match[1],
-          file: match[2],
-          line: match[3],
-          col: match[4] || 0
-        };
-        if (entry.func === "") entry.func = "<anonymous>";
-        stack.push(entry);
-      }
+  // parse the stack trace: each line is a tuple (function, file, lineNumber)
+  // Note: unfortunately this is interpreter specific
+  // safari: "<function>@<file>:<lineNumber>"
+  // chrome: "at <function>(<file>:<line>:<col>"
+
+  var stack = [];
+  for (idx = 0; idx < stackTrace.length; idx++) {
+    var match = SAFARI_STACK_ELEM.exec(stackTrace[idx]);
+    if (!match) match = CHROME_STACK_ELEM.exec(stackTrace[idx]);
+    if (match) {
+      var entry = {
+        func: match[1],
+        file: match[2],
+        line: match[3],
+        col: match[4] || 0
+      };
+      if (entry.func === "") entry.func = "<anonymous>";
+      stack.push(entry);
     }
-
-    return stack.splice(1);
   }
+
+  return stack;
 }
 
-util.stacktrace = function () {
-  var stack = util.callstack().splice(1);
+util.callstack = function(k) {
+  var err;
+  try { throw new Error(); } catch (_err) {err = _err};
+  var stack = util.parseStackTrace(err);
+  k = k || 0;
+  return stack.splice(k+1);
+}
+
+util.stacktrace = function (err) {
+  var stack = (arguments.length == 0) ? util.callstack().splice(1) : util.parseStackTrace(err);
   var str = [];
   _.each(stack, function(s) {
     str.push(s.file+":"+s.line+":"+s.col+" ("+s.func+")");
   });
   return str.join("\n");
+}
+
+util.printStackTrace = function(err, N) {
+  if (!err.stack) return;
+  
+  var stack;
+  // built-in errors have the stack trace as one string
+  if (_.isString(err.stack)) {
+   stack = util.parseStackTrace(err);
+  }
+  // Substance errors have a nice stack already 
+  else {
+    stack = err.stack;
+  }
+
+  N = N || stack.length;
+  N = Math.min(N, stack.length);
+
+  for (var idx = 0; idx < N; idx++) {
+    var s = stack[idx];
+    console.log(s.file+":"+s.line+":"+s.col, "("+s.func+")");
+  }
 }
 
 // computes the difference of obj1 to obj2
