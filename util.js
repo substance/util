@@ -225,9 +225,12 @@ _.each(listenMethods, function(implementation, method) {
 util.Events.bind   = util.Events.on;
 util.Events.unbind = util.Events.off;
 
+var __once__ = _.once;
+
 function callAsynchronousChain(options, cb) {
 
   var _finally = options.finally || function(err, data) { cb(err, data); }
+  _finally = __once__(_finally);
   var data = options.data || {};
   var functions = options.functions;
 
@@ -250,13 +253,13 @@ function callAsynchronousChain(options, cb) {
     // A function that is used as call back for each function
     // which does the progression in the chain via recursion.
     // On errors the given callback will be called and recursion is stopped.
-    var recursiveCallback = function(err, data) {
+    var recursiveCallback = __once__(function(err, data) {
       // stop on error
       if (err && stopOnError) return _finally(err, null);
 
       index += 1;
       process(data);
-    };
+    });
 
     // catch exceptions and propagat
     try {
