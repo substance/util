@@ -147,6 +147,13 @@ seeds.loadSeed = function(seedSpec, cb) {
     });
 };
 
+seeds.loadSeedByName = function(seedName, cb) {
+  seeds.loadSeedSpec(seedName, function(err, seedSpec) {
+    if(err) return cb(err);
+    seeds.loadSeed(seedSpec, cb);
+  });
+}
+
 // Export Module
 // --------
 
