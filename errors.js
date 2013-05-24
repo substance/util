@@ -40,6 +40,8 @@ SubstanceError.prototype = {
 errors.define = function(className, code) {
   errors[className] = SubstanceError.bind(null, className, code);
   errors[className].prototype = SubstanceError.prototype;
+
+  return errors[className];
 }
 
 if (typeof exports === 'undefined') {
