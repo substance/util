@@ -9,7 +9,7 @@ if (typeof exports !== 'undefined') {
 
 var errors = {};
 
-SubstanceError = function(name, code, message) {
+errors.SubstanceError = function(name, code, message) {
   if (arguments.length == 1) {
     message = name;
     name = "SubstanceError";
@@ -23,29 +23,33 @@ SubstanceError = function(name, code, message) {
   this.stack = util.callstack(1);
 };
 
-SubstanceError.prototype = {
-  toString: function() {
+errors.SubstanceError.__prototype__ = function() {
+
+  this.toString = function() {
     return this.name+":"+this.message;
-  },
-  toJSON: function() {
+  };
+
+  this.toJSON = function() {
     return {
       name: this.name,
       message: this.message,
       code: this.code,
       stack: this.stack
     };
-  },
-  printStackTrace: function() {
+  };
+
+  this.printStackTrace = function() {
     for (var idx = 0; idx < this.stack.length; idx++) {
       var s = this.stack[idx];
       console.log(s.file+":"+s.line+":"+s.col, "("+s.func+")");
     }
-  }
-}
+  };
+};
+errors.SubstanceError.prototype = new errors.SubstanceError.__prototype__();
 
 errors.define = function(className, code) {
-  errors[className] = SubstanceError.bind(null, className, code);
-  errors[className].prototype = SubstanceError.prototype;
+  errors[className] = errors.SubstanceError.bind(null, className, code);
+  errors[className].prototype = errors.SubstanceError.prototype;
 
   return errors[className];
 }
