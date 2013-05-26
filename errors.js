@@ -10,6 +10,12 @@ if (typeof exports !== 'undefined') {
 var errors = {};
 
 SubstanceError = function(name, code, message) {
+  if (arguments.length == 1) {
+    message = name;
+    name = "SubstanceError";
+    code = -1;
+  }
+
   this.message = message;
   this.name = name;
   this.code = code;
