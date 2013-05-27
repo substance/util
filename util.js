@@ -7,7 +7,7 @@ var fs, _;
 
 if (typeof exports !== 'undefined') {
   fs = require('fs');
-  _ = (env == 'hub') ? require('underscore') : _;
+  _ = require('underscore');
 } else {
   _ = root._;
 }
@@ -16,7 +16,7 @@ if (typeof exports !== 'undefined') {
 // ====
 
 var util = {};
-var env = (root.exports) ? 'hub' : 'composer';
+var env = (typeof exports !== 'undefined') ? 'hub' : 'composer';
 
 // UUID Generator
 // -----------------
@@ -459,7 +459,7 @@ util.inherits = function(parent, protoProps, staticProps) {
 // ----------
 
 util.getJSON = function(resource, cb) {
-  if (env == 'hub') {
+  if (typeof exports !== 'undefined') {
     var obj = JSON.parse(fs.readFileSync(resource, 'utf8'));
     cb(null, obj);
   } else {
