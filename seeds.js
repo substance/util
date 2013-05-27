@@ -5,7 +5,7 @@
 
 var _, util;
 
-if (root.exports !== "undefined") {
+if (root.exports) {
   _ = require('underscore');
   util = require('./util');
 } else {
