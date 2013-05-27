@@ -1,11 +1,19 @@
-(function(root) {
+(function(root) { "use_strict";
+
+// Imports
+// ====
+
+var _, util;
 
 if (typeof exports !== 'undefined') {
-  var _ = require('underscore');
-  var util = require('./util')
+  _ = require('underscore');
+  util = require('./util');
 } else {
-   var util = Substance.util;
+  util = root.Substance.util;
 }
+
+// Module
+// ====
 
 var errors = {};
 
@@ -52,7 +60,7 @@ errors.define = function(className, code) {
   errors[className].prototype = errors.SubstanceError.prototype;
 
   return errors[className];
-}
+};
 
 if (typeof exports === 'undefined') {
   if (!root.Substance) root.Substance = {};

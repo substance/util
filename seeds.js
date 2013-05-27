@@ -1,17 +1,22 @@
-(function() {
+(function(root) { "use_strict";
 
-var root = this;
+// Imports
+// ====
 
-if (typeof exports !== 'undefined') {
-  var _    = require('underscore');
-  var util   = require('./util');
+var _, util;
+
+if (root.exports !== "undefined") {
+  _ = require('underscore');
+  util = require('./util');
 } else {
-  var _ = root._;
-  var util = root.Substance.util;
+  _ = root._;
+  util = root.Substance.util;
 }
 
-var seeds = {};
+// Module
+// ====
 
+var seeds = {};
 var SEEDS_DIR = "./tests/seeds";
 
 seeds.prepareSeedSpec = function(seedSpec, cb) {
@@ -154,8 +159,8 @@ seeds.loadSeedByName = function(seedName, cb) {
   });
 }
 
-// Export Module
-// --------
+// Export
+// ====
 
 if (typeof exports === 'undefined') {
   root.Substance.seeds = seeds;
@@ -163,4 +168,4 @@ if (typeof exports === 'undefined') {
   module.exports = seeds;
 }
 
-}).call(this);
+})(this);

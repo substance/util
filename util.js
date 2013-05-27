@@ -1,18 +1,22 @@
-if (typeof Substance === 'undefined') Substance = {};
-if (typeof Substance.util === 'undefined') Substance.util = {};
+(function(root){ "use_strict";
 
-(function(ctx){
+// Imports
+// ====
 
-var util = {};
-
-var env = (typeof exports === 'undefined') ? 'composer' : 'hub';
+var fs, _;
 
 if (typeof exports !== 'undefined') {
-  var fs = require('fs');
-  var _ = (env == 'hub') ? require('underscore') : _;
+  fs = require('fs');
+  _ = (env == 'hub') ? require('underscore') : _;
 } else {
-  var _ = ctx._;
+  _ = root._;
 }
+
+// Module
+// ====
+
+var util = {};
+var env = (root.exports) ? 'hub' : 'composer';
 
 // UUID Generator
 // -----------------
@@ -30,11 +34,12 @@ util.uuid = function (prefix, len) {
   var chars = '0123456789abcdefghijklmnopqrstuvwxyz'.split(''),
       uuid = [],
       radix = 16,
-      len = len || 32;
+      idx;
+  len = len || 32;
 
   if (len) {
     // Compact form
-    for (var i = 0; i < len; i++) uuid[i] = chars[0 | Math.random()*radix];
+    for (idx = 0; idx < len; idx++) uuid[idx] = chars[0 | Math.random()*radix];
   } else {
     // rfc4122, version 4 form
     var r;
@@ -45,10 +50,10 @@ util.uuid = function (prefix, len) {
 
     // Fill in random data.  At i==19 set the high bits of clock sequence as
     // per rfc4122, sec. 4.1.5
-    for (var i = 0; i < 36; i++) {
-      if (!uuid[i]) {
+    for (idx = 0; idx < 36; idx++) {
+      if (!uuid[idx]) {
         r = 0 | Math.random()*16;
-        uuid[i] = chars[(i == 19) ? (r & 0x3) | 0x8 : r];
+        uuid[idx] = chars[(idx == 19) ? (r & 0x3) | 0x8 : r];
       }
     }
   }
@@ -78,7 +83,7 @@ util.Events = {
   // the callback to all events fired.
   on: function(name, callback, context) {
     if (!eventsApi(this, 'on', name, [callback, context]) || !callback) return this;
-    this._events || (this._events = {});
+    this._events =  this._events || {};
     var events = this._events[name] || (this._events[name] = []);
     events.push({callback: callback, context: context, ctx: context || this});
     return this;
@@ -112,7 +117,8 @@ util.Events = {
     names = name ? [name] : _.keys(this._events);
     for (i = 0, l = names.length; i < l; i++) {
       name = names[i];
-      if (events = this._events[name]) {
+      events = this._events[name];
+      if (events) {
         this._events[name] = retain = [];
         if (callback || context) {
           for (j = 0, k = events.length; j < k; j++) {
@@ -229,7 +235,7 @@ var __once__ = _.once;
 
 function callAsynchronousChain(options, cb) {
 
-  var _finally = options.finally || function(err, data) { cb(err, data); }
+  var _finally = options.finally || function(err, data) { cb(err, data); };
   _finally = __once__(_finally);
   var data = options.data || {};
   var functions = options.functions;
@@ -239,7 +245,6 @@ function callAsynchronousChain(options, cb) {
   }
 
   var index = 0;
-  var args = [];
   var stopOnError = options.stopOnError || true;
 
   function process(data) {
@@ -298,13 +303,13 @@ util.async.sequential = function(options, cb) {
     options = { functions: options };
   }
   callAsynchronousChain(options, cb);
-}
+};
 
 function asynchronousIterator(options) {
   return function(data, cb) {
     // retrieve items via selector if a selector function is given
     var items = options.selector ? options.selector(data) : options.items;
-    var _finally = options.finally || function(err, data) { cb(err, data); }
+    var _finally = options.finally || function(err, data) { cb(err, data); };
 
     // don't do nothing if no items are given
     if (!items) return _finally(null, data);
@@ -388,15 +393,16 @@ util.async.iterator = function(options_or_items, iterator) {
     options = {
       items: options_or_items,
       iterator: iterator
-    }
+    };
   }
   return asynchronousIterator(options);
 };
 
 util.async.each = function(options, cb) {
   // create the iterator and call instantly
-  asynchronousIterator(options)(null, cb);
-}
+  var f = asynchronousIterator(options);
+  f(null, cb);
+};
 
 util.propagate = function(data, cb) {
   if(!_.isFunction(cb)) {
@@ -405,10 +411,8 @@ util.propagate = function(data, cb) {
   return function(err) {
     if (err) return cb(err);
     cb(null, data);
-  }
-}
-
-
+  };
+};
 
 // shamelessly stolen from backbone.js:
 // Helper function to correctly set up the prototype chain, for subclasses.
@@ -464,11 +468,12 @@ util.getJSON = function(resource, cb) {
       .done(function(obj) { cb(null, obj); })
       .error(function(err) { cb(err, null); });
   }
-}
+};
 
 util.prototype = function(that) {
+  /*jshint proto: true*/ // supressing a warning about using deprecated __proto__. 
   return Object.getPrototypeOf ? Object.getPrototypeOf(that) : that.__proto__;
-}
+};
 
 util.inherit = function(__super__, __self__) {
   var super_proto = _.isFunction(__super__) ? new __super__() : __super__;
@@ -482,7 +487,7 @@ util.inherit = function(__super__, __self__) {
     proto = _.extend(new tmp(), __self__);
   }
   return proto;
-}
+};
 
 util.pimpl = function(pimpl) {
   var __pimpl__ = function(self) {
@@ -490,7 +495,7 @@ util.pimpl = function(pimpl) {
   };
   __pimpl__.prototype = pimpl;
   return function(self) { self = self || this; return new __pimpl__(self); };
-}
+};
 
 util.parseStackTrace = function(err) {
   var SAFARI_STACK_ELEM = /([^@]*)@(.*):(\d+)/;
@@ -522,24 +527,24 @@ util.parseStackTrace = function(err) {
   }
 
   return stack;
-}
+};
 
 util.callstack = function(k) {
   var err;
-  try { throw new Error(); } catch (_err) {err = _err};
+  try { throw new Error(); } catch (_err) { err = _err; }
   var stack = util.parseStackTrace(err);
   k = k || 0;
   return stack.splice(k+1);
-}
+};
 
 util.stacktrace = function (err) {
-  var stack = (arguments.length == 0) ? util.callstack().splice(1) : util.parseStackTrace(err);
+  var stack = (arguments.length === 0) ? util.callstack().splice(1) : util.parseStackTrace(err);
   var str = [];
   _.each(stack, function(s) {
     str.push(s.file+":"+s.line+":"+s.col+" ("+s.func+")");
   });
   return str.join("\n");
-}
+};
 
 util.printStackTrace = function(err, N) {
   if (!err.stack) return;
@@ -561,35 +566,39 @@ util.printStackTrace = function(err, N) {
     var s = stack[idx];
     console.log(s.file+":"+s.line+":"+s.col, "("+s.func+")");
   }
-}
+};
 
 // computes the difference of obj1 to obj2
 util.diff = function(obj1, obj2) {
+  var diff;
   if (_.isArray(obj1) && _.isArray(obj2)) {
-    var diff = _.difference(obj2, obj1);
+    diff = _.difference(obj2, obj1);
     // return null in case of equality
-    if (diff.length == 0) return null;
+    if (diff.length === 0) return null;
     else return diff;
   }
   if (_.isObject(obj1) && _.isObject(obj2)) {
-    var diff = {};
+    diff = {};
     _.each(Object.keys(obj2), function(key) {
       var d = util.diff(obj1[key], obj2[key]);
       if (d) diff[key] = d;
-    })
+    });
     // return null in case of equality
     if (_.isEmpty(diff)) return null;
     else return diff;
   }
   if(obj1 !== obj2) return obj2;
-}
+};
+
+// Export
+// ====
 
 if (typeof exports !== 'undefined') {
   module.exports = util;
 } else {
-  if (!ctx.Substance) ctx.Substance = {};
-  if (!ctx.Substance.util) ctx.Substance.util = {};
-  _.extend(ctx.Substance.util, util);
+  if (!root.Substance) root.Substance = {};
+  if (!root.Substance.util) root.Substance.util = {};
+  _.extend(root.Substance.util, util);
 }
 
 })(this);
