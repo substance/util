@@ -16,7 +16,6 @@ if (typeof exports !== 'undefined') {
 // ====
 
 var util = {};
-var env = (typeof exports !== 'undefined') ? 'hub' : 'composer';
 
 // UUID Generator
 // -----------------
