@@ -470,7 +470,7 @@ util.getJSON = function(resource, cb) {
 };
 
 util.prototype = function(that) {
-  /*jshint proto: true*/ // supressing a warning about using deprecated __proto__. 
+  /*jshint proto: true*/ // supressing a warning about using deprecated __proto__.
   return Object.getPrototypeOf ? Object.getPrototypeOf(that) : that.__proto__;
 };
 
@@ -500,7 +500,7 @@ util.parseStackTrace = function(err) {
   var SAFARI_STACK_ELEM = /([^@]*)@(.*):(\d+)/;
   var CHROME_STACK_ELEM = /\s*at ([^(]*)[(](.*):(\d+):(\d+)[)]/;
 
-  
+
   var idx;
   var stackTrace = err.stack.split('\n');
 
@@ -547,13 +547,13 @@ util.stacktrace = function (err) {
 
 util.printStackTrace = function(err, N) {
   if (!err.stack) return;
-  
+
   var stack;
   // built-in errors have the stack trace as one string
   if (_.isString(err.stack)) {
    stack = util.parseStackTrace(err);
   }
-  // Substance errors have a nice stack already 
+  // Substance errors have a nice stack already
   else {
     stack = err.stack;
   }
@@ -587,6 +587,10 @@ util.diff = function(obj1, obj2) {
     else return diff;
   }
   if(obj1 !== obj2) return obj2;
+};
+
+util.deepclone = function(obj) {
+  return  JSON.parse(JSON.stringify(obj));
 };
 
 // Export
