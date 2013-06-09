@@ -59,6 +59,12 @@ util.uuid = function (prefix, len) {
   return (prefix ? prefix : "") + uuid.join('');
 };
 
+// creates a uuid function that generates counting uuids
+util.custom_uuid = function(obj) {
+  return function() {
+    return ""+obj.id++;
+  };
+};
 
 // Events
 // ---------------
