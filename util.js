@@ -599,6 +599,16 @@ util.deepclone = function(obj) {
   return  JSON.parse(JSON.stringify(obj));
 };
 
+util.delegate = function(self, interface, delegate) {
+  _.each(interface, function(name) {
+    if (_.isFunction(interface[name])) {
+      self[name] = function() {
+        return this[delegate][name].apply(this[delegate], arguments);
+      };
+    }
+  });
+};
+
 // Export
 // ====
 
