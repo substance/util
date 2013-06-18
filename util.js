@@ -595,8 +595,23 @@ util.diff = function(obj1, obj2) {
   if(obj1 !== obj2) return obj2;
 };
 
+// Deep-Clone a given object
+// --------
+// Note: this is currently done via JSON.parse(JSON.stringify(obj))
+//       which is in fact not optimal, as it depends on `toJSON` implementation.
 util.deepclone = function(obj) {
-  return  JSON.parse(JSON.stringify(obj));
+  return JSON.parse(JSON.stringify(obj));
+};
+
+// Clones a given object
+// --------
+// Calls obj's `clone` function if available,
+// otherwise clones the obj using `util.deepclone()`.
+util.clone = function(obj) {
+  if (_.isFunction(obj.clone)) {
+    return obj.clone();
+  }
+  return util.deepclone(obj);
 };
 
 util.delegate = function(self, interface, delegate) {
