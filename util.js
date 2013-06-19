@@ -614,16 +614,6 @@ util.clone = function(obj) {
   return util.deepclone(obj);
 };
 
-util.delegate = function(self, interface, delegate) {
-  _.each(interface, function(name) {
-    if (_.isFunction(interface[name])) {
-      self[name] = function() {
-        return this[delegate][name].apply(this[delegate], arguments);
-      };
-    }
-  });
-};
-
 // Export
 // ====
 
