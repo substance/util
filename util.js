@@ -614,6 +614,26 @@ util.clone = function(obj) {
   return util.deepclone(obj);
 };
 
+util.freeze = function(obj) {
+  var idx;
+  if (_.isObject(obj)) {
+    var keys = Object.keys(obj);
+    for (idx = 0; idx < keys.length; idx++) {
+      var key = keys[idx];
+      obj[key] = util.freeze(obj[key]);
+    }
+    return Object.freeze(obj);
+  } else if (_.isArray(obj)) {
+    var arr = obj;
+    for (idx = 0; idx < arr.length; idx++) {
+      arr[idx] = util.freeze(arr[idx]);
+    }
+    return Object.freeze(arr);
+  } else {
+    return obj; // Object.freeze(obj);
+  }
+};
+
 // Export
 // ====
 
