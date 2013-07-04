@@ -1,4 +1,0 @@
-[
-  { "keys": ["ctrl+shift+g", "s"], "command": "git_status" },
-  { "keys": ["enter"], "command": "git_commit", "context": [{"key": "git_status"}]}
-]
