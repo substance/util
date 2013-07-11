@@ -239,7 +239,6 @@ util.Events.unbind = util.Events.off;
 var __once__ = _.once;
 
 function callAsynchronousChain(options, cb) {
-
   var _finally = options.finally || function(err, data) { cb(err, data); };
   _finally = __once__(_finally);
   var data = options.data || {};
@@ -250,7 +249,7 @@ function callAsynchronousChain(options, cb) {
   }
 
   var index = 0;
-  var stopOnError = options.stopOnError || true;
+  var stopOnError = (options.stopOnError===undefined) ? true : options.stopOnError;
 
   function process(data) {
     var func = functions[index];
@@ -307,6 +306,7 @@ util.async.sequential = function(options, cb) {
   if(_.isArray(options)) {
     options = { functions: options };
   }
+  console.log(options);
   callAsynchronousChain(options, cb);
 };
 

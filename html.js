@@ -23,4 +23,11 @@
     root.Substance.util.html = html;
   }
 
+
+  Handlebars.registerHelper('ifelse', function(cond, textIf, textElse) {
+    textIf = Handlebars.Utils.escapeExpression(textIf);
+    textElse  = Handlebars.Utils.escapeExpression(textElse);
+    return new Handlebars.SafeString(cond ? textIf : textElse);
+  });
+
 })(this);
