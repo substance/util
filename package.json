@@ -4,7 +4,7 @@
   "keywords": ["substance"],
   "author": "Oliver Buchtala",
   "contributors" : ["Michael Aufreiter"],
-  "version": "0.1.0",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/substance/util.git"
