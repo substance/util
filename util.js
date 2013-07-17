@@ -617,6 +617,8 @@ util.clone = function(obj) {
 util.freeze = function(obj) {
   var idx;
   if (_.isObject(obj)) {
+    if (Object.isFrozen(obj)) return obj;
+
     var keys = Object.keys(obj);
     for (idx = 0; idx < keys.length; idx++) {
       var key = keys[idx];
