@@ -3,7 +3,7 @@
   var esprima = require('esprima');
   var estraverse = require('estraverse');
   var escodegen = require('escodegen');
-  var CJSEverywhere = require('./module');
+  var CJSEverywhere = require('commonjs-everywhere');
 
   var REQUIRE = function(global) {
     var require = function(file, parentModule) {
@@ -45,9 +45,12 @@
     global.require = require;
   };
 
-  var MODULE = "require.define('${id}', function(global, module, exports, __dirname, __filename){${body}\n});";
+  var MODULE = function(id, body) {
+    return ["require.define('", id,"', function(global, module, exports, __dirname, __filename){", body, "});"].join("");
+  };
 
-  var Server = function(root, options) {
+  var CommonJSServer = function(root, options) {
+    options = options || {};
     this.root = root;
     this.options = options;
     this.cache = {};
@@ -55,7 +58,7 @@
     this.map = {};
   };
 
-  Server.__prototype__ = function() {
+  CommonJSServer.__prototype__ = function() {
 
     function _prepareSource(source, nodes) {
 
@@ -109,18 +112,20 @@
         }
       });
 
+      var body;
+      var id = entry.canonicalName;
       if (nodes.length === 0) {
-        return;
+        body = entry.fileContents;
+      } else {
+        body = _prepareSource(entry.fileContents, nodes);
       }
 
-      var id = entry.canonicalName;
-      var body = _prepareSource(entry.fileContents, nodes);
-      var code = MODULE.replace("${id}", id).replace("${body}", body);
-
+      var code = MODULE(id, body);
       if (self.options.minify) {
         code = _minify(code);
       }
 
+      console.log("Updating: ", path, id);
       self.sources[path] = code;
       self.map[id] = path;
     }
@@ -138,24 +143,27 @@
 
     };
 
-    Server.prototype.list = function() {
-      return Object.keys(this.map);
+    this.list = function() {
+      var result = Object.keys(this.map);
+      console.log("list", result);
+      return result;
     };
 
-    Server.prototype.getScript = function(resource) {
-      if (this.map[resource] === undefined) {
-        throw new Error("Unknown resource: " + resource);
-      }
-
+    this.getScript = function(resource) {
       if (resource === "/require.js") {
         return "("+REQUIRE.toString()+").call(this,this);";
       } else {
+        if (this.map[resource] === undefined) {
+          throw new Error("Unknown resource: " + resource);
+        }
         var path = this.map[resource];
         this.update(path);
         return this.sources[path];
       }
     };
   };
-  Server.prototype = new Server.__prototype__();
+  CommonJSServer.prototype = new CommonJSServer.__prototype__();
+
+  module.exports = CommonJSServer;
 
 }).call(this);
