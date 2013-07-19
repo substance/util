@@ -1,16 +1,10 @@
-(function(root) { "use strict";
+"use strict";
 
 // Imports
 // ====
 
-var _, util;
-
-if (typeof exports !== 'undefined') {
-  _ = require('underscore');
-  util = require('./util');
-} else {
-  util = root.Substance.util;
-}
+var _ = require('underscore');
+var util = require('./util');
 
 // Module
 // ====
@@ -62,11 +56,4 @@ errors.define = function(className, code) {
   return errors[className];
 };
 
-if (typeof exports === 'undefined') {
-  if (!root.Substance) root.Substance = {};
-  root.Substance.errors = errors;
-} else {
-  module.exports = errors;
-}
-
-})(this);
+module.exports = errors;

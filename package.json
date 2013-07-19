@@ -13,6 +13,7 @@
     "node": ">=0.8.x"
   },
   "dependencies": {
-    "underscore": "1.5.x"
+    "underscore": "1.5.x",
+    "handlebars": "1.0.x"
   }
 }

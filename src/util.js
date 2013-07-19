@@ -1,16 +1,9 @@
-(function(root){ "use strict";
+"use strict";
 
 // Imports
 // ====
 
-var fs, _;
-
-if (typeof exports !== 'undefined') {
-  fs = require('fs');
-  _ = require('underscore');
-} else {
-  _ = root._;
-}
+var _ = require('underscore');
 
 // Module
 // ====
@@ -465,6 +458,7 @@ util.inherits = function(parent, protoProps, staticProps) {
 
 util.getJSON = function(resource, cb) {
   if (typeof exports !== 'undefined') {
+    var fs = require('fs');
     var obj = JSON.parse(fs.readFileSync(resource, 'utf8'));
     cb(null, obj);
   } else {
@@ -639,12 +633,4 @@ util.freeze = function(obj) {
 // Export
 // ====
 
-if (typeof exports !== 'undefined') {
-  module.exports = util;
-} else {
-  if (!root.Substance) root.Substance = {};
-  if (!root.Substance.util) root.Substance.util = {};
-  _.extend(root.Substance.util, util);
-}
-
-})(this);
+module.exports = util;
