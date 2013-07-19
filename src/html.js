@@ -2,6 +2,7 @@
 
 var html = {};
 var Handlebars = require("handlebars");
+var _ = require("underscore");
 
 html.templates = {};
 
@@ -19,6 +20,22 @@ Handlebars.registerHelper('ifelse', function(cond, textIf, textElse) {
   textElse  = Handlebars.Utils.escapeExpression(textElse);
   return new Handlebars.SafeString(cond ? textIf : textElse);
 });
+
+// A fake console to calm down some browsers.
+if (!window.console) {
+  window.console = {
+    log: function(msg) {
+      // No-op
+    }
+  };
+}
+
+// Render Underscore templates
+html.tpl = function (tpl, ctx) {
+  var source = $('script[name='+tpl+']').html();
+  // var source = templates[tpl];
+  return _.template(source, ctx);
+};
 
 // Exports
 // ====
