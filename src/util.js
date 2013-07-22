@@ -53,11 +53,15 @@ util.uuid = function (prefix, len) {
 };
 
 // creates a uuid function that generates counting uuids
-util.custom_uuid = function(obj) {
+util.uuidGen = function(prefix) {
+  var id = 1;
+  prefix = prefix || "";
   return function() {
-    return ""+obj.id++;
+    return prefix+(id++);
   };
 };
+
+
 
 // Events
 // ---------------
