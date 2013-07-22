@@ -23,6 +23,7 @@ errors.SubstanceError = function(name, code, message) {
   this.code = code;
 
   this.stack = util.callstack(1);
+  this.stack_trace = this.stack.join("\n");
 };
 
 errors.SubstanceError.__prototype__ = function() {
