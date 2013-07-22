@@ -22,8 +22,7 @@ errors.SubstanceError = function(name, code, message) {
   this.name = name;
   this.code = code;
 
-  this.stack = util.callstack(1);
-  this.stack_trace = this.stack.join("\n");
+  this.__stack = util.callstack(1);
 };
 
 errors.SubstanceError.__prototype__ = function() {
@@ -42,18 +41,27 @@ errors.SubstanceError.__prototype__ = function() {
   };
 
   this.printStackTrace = function() {
-    for (var idx = 0; idx < this.stack.length; idx++) {
-      var s = this.stack[idx];
-      console.log(s.file+":"+s.line+":"+s.col, "("+s.func+")");
-    }
+    util.printStackTrace(this);
   };
+
 };
 errors.SubstanceError.prototype = new errors.SubstanceError.__prototype__();
+
+Object.defineProperty(errors.SubstanceError.prototype, "stack", {
+  get: function() {
+    var str = [];
+    for (var idx = 0; idx < this.__stack.length; idx++) {
+      var s = this.__stack[idx];
+      str.push(s.file+":"+s.line+":"+s.col+" ("+s.func+")");
+    }
+    return str.join("\n");
+  },
+  set: function() { throw new Error("immutable.")}
+});
 
 errors.define = function(className, code) {
   errors[className] = errors.SubstanceError.bind(null, className, code);
   errors[className].prototype = errors.SubstanceError.prototype;
-
   return errors[className];
 };
 

@@ -504,7 +504,6 @@ util.parseStackTrace = function(err) {
   var SAFARI_STACK_ELEM = /([^@]*)@(.*):(\d+)/;
   var CHROME_STACK_ELEM = /\s*at ([^(]*)[(](.*):(\d+):(\d+)[)]/;
 
-
   var idx;
   var stackTrace = err.stack.split('\n');
 
@@ -553,14 +552,16 @@ util.printStackTrace = function(err, N) {
   if (!err.stack) return;
 
   var stack;
-  // built-in errors have the stack trace as one string
-  if (_.isString(err.stack)) {
-   stack = util.parseStackTrace(err);
-  }
+
   // Substance errors have a nice stack already
-  else {
-    stack = err.stack;
+  if (err.__stack !== undefined) {
+    stack = err.__stack;
   }
+  // built-in errors have the stack trace as one string
+  else if (_.isString(err.stack)) {
+    stack = util.parseStackTrace(err);
+  }
+  else return;
 
   N = N || stack.length;
   N = Math.min(N, stack.length);
