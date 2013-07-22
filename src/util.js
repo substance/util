@@ -53,10 +53,10 @@ util.uuid = function (prefix, len) {
 };
 
 // creates a uuid function that generates counting uuids
-util.uuidGen = function(prefix) {
+util.uuidGen = function(defaultPrefix) {
   var id = 1;
-  prefix = prefix || "";
-  return function() {
+  return function(prefix) {
+    prefix = prefix || defaultPrefix || "uuid_";
     return prefix+(id++);
   };
 };
