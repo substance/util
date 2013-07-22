@@ -21,13 +21,15 @@ Handlebars.registerHelper('ifelse', function(cond, textIf, textElse) {
   return new Handlebars.SafeString(cond ? textIf : textElse);
 });
 
-// A fake console to calm down some browsers.
-if (!window.console) {
-  window.console = {
-    log: function(msg) {
-      // No-op
-    }
-  };
+if (typeof window !== "undefined") {
+  // A fake console to calm down some browsers.
+  if (!window.console) {
+    window.console = {
+      log: function(msg) {
+        // No-op
+      }
+    };
+  }
 }
 
 // Render Underscore templates
