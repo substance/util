@@ -55,12 +55,12 @@ util.uuid = function (prefix, len) {
 // creates a uuid function that generates counting uuids
 util.uuidGen = function(defaultPrefix) {
   var id = 1;
+  defaultPrefix = (defaultPrefix !== undefined) ? defaultPrefix : "uuid_";
   return function(prefix) {
-    prefix = prefix || defaultPrefix || "uuid_";
+    prefix = prefix || defaultPrefix;
     return prefix+(id++);
   };
 };
-
 
 
 // Events
