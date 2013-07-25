@@ -60,6 +60,7 @@ Object.defineProperty(errors.SubstanceError.prototype, "stack", {
 });
 
 errors.define = function(className, code) {
+  if (code === undefined) code = -1;
   errors[className] = errors.SubstanceError.bind(null, className, code);
   errors[className].prototype = errors.SubstanceError.prototype;
   return errors[className];
