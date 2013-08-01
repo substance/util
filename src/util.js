@@ -79,6 +79,49 @@ util.uuidGen = function(defaultPrefix) {
 //     object.trigger('expand');
 //
 
+// A difficult-to-believe, but optimized internal dispatch function for
+// triggering events. Tries to keep the usual cases speedy (most internal
+// Backbone events have 3 arguments).
+var triggerEvents = function(events, args) {
+  var ev, i = -1, l = events.length, a1 = args[0], a2 = args[1], a3 = args[2];
+  switch (args.length) {
+    case 0: while (++i < l) (ev = events[i]).callback.call(ev.ctx); return;
+    case 1: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1); return;
+    case 2: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2); return;
+    case 3: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2, a3); return;
+    default: while (++i < l) (ev = events[i]).callback.apply(ev.ctx, args);
+  }
+};
+
+// Regular expression used to split event strings.
+var eventSplitter = /\s+/;
+
+// Implement fancy features of the Events API such as multiple event
+// names `"change blur"` and jQuery-style event maps `{change: action}`
+// in terms of the existing API.
+var eventsApi = function(obj, action, name, rest) {
+  if (!name) return true;
+
+  // Handle event maps.
+  if (typeof name === 'object') {
+    for (var key in name) {
+      obj[action].apply(obj, [key, name[key]].concat(rest));
+    }
+    return false;
+  }
+
+  // Handle space separated event names.
+  if (eventSplitter.test(name)) {
+    var names = name.split(eventSplitter);
+    for (var i = 0, l = names.length; i < l; i++) {
+      obj[action].apply(obj, [names[i]].concat(rest));
+    }
+    return false;
+  }
+
+  return true;
+};
+
 util.Events = {
 
   // Bind an event to a `callback` function. Passing `"all"` will bind
@@ -153,6 +196,14 @@ util.Events = {
     return this;
   },
 
+  triggerLater: function() {
+    var self = this;
+    var _arguments = arguments;
+    setTimeout(function() {
+      self.trigger.apply(self, _arguments);
+    }, 0);
+  },
+
   // Tell this object to stop listening to either specific events ... or
   // to every object it's currently listening to.
   stopListening: function(obj, name, callback) {
@@ -168,49 +219,6 @@ util.Events = {
     return this;
   }
 
-};
-
-// Regular expression used to split event strings.
-var eventSplitter = /\s+/;
-
-// Implement fancy features of the Events API such as multiple event
-// names `"change blur"` and jQuery-style event maps `{change: action}`
-// in terms of the existing API.
-var eventsApi = function(obj, action, name, rest) {
-  if (!name) return true;
-
-  // Handle event maps.
-  if (typeof name === 'object') {
-    for (var key in name) {
-      obj[action].apply(obj, [key, name[key]].concat(rest));
-    }
-    return false;
-  }
-
-  // Handle space separated event names.
-  if (eventSplitter.test(name)) {
-    var names = name.split(eventSplitter);
-    for (var i = 0, l = names.length; i < l; i++) {
-      obj[action].apply(obj, [names[i]].concat(rest));
-    }
-    return false;
-  }
-
-  return true;
-};
-
-// A difficult-to-believe, but optimized internal dispatch function for
-// triggering events. Tries to keep the usual cases speedy (most internal
-// Backbone events have 3 arguments).
-var triggerEvents = function(events, args) {
-  var ev, i = -1, l = events.length, a1 = args[0], a2 = args[1], a3 = args[2];
-  switch (args.length) {
-    case 0: while (++i < l) (ev = events[i]).callback.call(ev.ctx); return;
-    case 1: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1); return;
-    case 2: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2); return;
-    case 3: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2, a3); return;
-    default: while (++i < l) (ev = events[i]).callback.apply(ev.ctx, args);
-  }
 };
 
 var listenMethods = {listenTo: 'on', listenToOnce: 'once'};
@@ -232,6 +240,33 @@ _.each(listenMethods, function(implementation, method) {
 // Aliases for backwards compatibility.
 util.Events.bind   = util.Events.on;
 util.Events.unbind = util.Events.off;
+
+util.Events.Listener = {
+
+  listenTo: function(obj, name, callback) {
+
+    // initialize container for keeping handlers to unbind later
+    var handlers = this._handlers || (this._handlers = {});
+
+    obj.on(name, callback, this);
+
+    handlers.push({
+      unbind: function() {
+        obj.off(name, callback);
+      }
+    });
+
+    return this;
+  },
+
+  stopListening: function() {
+    for (var i = 0; i < this._handlers.length; i++) {
+      this._handlers[i].unbind();
+    }
+  }
+
+};
+
 
 var __once__ = _.once;
 
@@ -478,26 +513,26 @@ util.prototype = function(that) {
   return Object.getPrototypeOf ? Object.getPrototypeOf(that) : that.__proto__;
 };
 
-util.inherit = function(__super__, __self__) {
-  var super_proto = _.isFunction(__super__) ? new __super__() : __super__;
+util.inherit = function(Super, Self) {
+  var super_proto = _.isFunction(Super) ? new Super() : Super;
   var proto;
-  if (_.isFunction(__self__)) {
-    __self__.prototype = super_proto;
-    proto = new __self__();
+  if (_.isFunction(Self)) {
+    Self.prototype = super_proto;
+    proto = new Self();
   } else {
-    var tmp = function(){};
-    tmp.prototype = super_proto;
-    proto = _.extend(new tmp(), __self__);
+    var TmpClass = function(){};
+    TmpClass.prototype = super_proto;
+    proto = _.extend(new TmpClass(), Self);
   }
   return proto;
 };
 
 util.pimpl = function(pimpl) {
-  var __pimpl__ = function(self) {
+  var Pimpl = function(self) {
     this.self = self;
   };
-  __pimpl__.prototype = pimpl;
-  return function(self) { self = self || this; return new __pimpl__(self); };
+  Pimpl.prototype = pimpl;
+  return function(self) { self = self || this; return new Pimpl(self); };
 };
 
 util.parseStackTrace = function(err) {
