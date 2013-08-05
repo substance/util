@@ -16,7 +16,7 @@
     "underscore": "1.5.x",
     "handlebars": "1.0.x"
   },
-  "version": "0.2.1",
+  "version": "0.2.0",
   "engines": {
     "node": ">=0.8.x",
     "npm": ">=1.1.x"
