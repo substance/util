@@ -1,19 +1,24 @@
 {
   "name": "substance-util",
   "description": "Provides Substance flowers for Substance gardeners.",
-  "keywords": ["substance"],
+  "keywords": [
+    "substance"
+  ],
   "author": "Oliver Buchtala",
-  "contributors" : ["Michael Aufreiter"],
-  "version": "0.2.0-alpha",
+  "contributors": [
+    "Michael Aufreiter"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/substance/util.git"
   },
-  "engines": {
-    "node": ">=0.8.x"
-  },
   "dependencies": {
     "underscore": "1.5.x",
     "handlebars": "1.0.x"
+  },
+  "version": "0.2.1",
+  "engines": {
+    "node": ">=0.8.x",
+    "npm": ">=1.1.x"
   }
 }
