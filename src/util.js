@@ -246,11 +246,11 @@ util.Events.Listener = {
   listenTo: function(obj, name, callback) {
 
     // initialize container for keeping handlers to unbind later
-    var handlers = this._handlers || (this._handlers = {});
+    this._handlers = this._handlers || [];
 
     obj.on(name, callback, this);
 
-    handlers.push({
+    this._handlers.push({
       unbind: function() {
         obj.off(name, callback);
       }
