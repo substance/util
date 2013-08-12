@@ -34,8 +34,8 @@ if (typeof window !== "undefined") {
 
 // Render Underscore templates
 html.tpl = function (tpl, ctx) {
+  ctx = ctx || {};
   var source = $('script[name='+tpl+']').html();
-  // var source = templates[tpl];
   return _.template(source, ctx);
 };
 
