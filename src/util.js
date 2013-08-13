@@ -400,7 +400,8 @@ function asynchronousIterator(options) {
     var chainOptions = {
       functions: funcs,
       data: data,
-      finally: _finally
+      finally: _finally,
+      stopOnError: options.stopOnError
     };
     callAsynchronousChain(chainOptions, cb);
   };
