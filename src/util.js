@@ -671,6 +671,15 @@ util.freeze = function(obj) {
   }
 };
 
+util.later = function(f, context) {
+  return function() {
+    var _args = arguments;
+    setTimeout(function() {
+      f.apply(context, _args);
+    }, 0);
+  };
+};
+
 // Export
 // ====
 
