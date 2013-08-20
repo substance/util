@@ -282,13 +282,18 @@ function callAsynchronousChain(options, cb) {
 
   var index = 0;
   var stopOnError = (options.stopOnError===undefined) ? true : options.stopOnError;
+  var errors = [];
 
   function process(data) {
     var func = functions[index];
 
     // stop if no function is left
     if (!func) {
-      return _finally(null, data);
+      if (errors.length > 0) {
+        return _finally(new Error("Multiple errors occurred.", data));
+      } else {
+        return _finally(null, data);
+      }
     }
 
     // A function that is used as call back for each function
@@ -296,7 +301,13 @@ function callAsynchronousChain(options, cb) {
     // On errors the given callback will be called and recursion is stopped.
     var recursiveCallback = __once__(function(err, data) {
       // stop on error
-      if (err && stopOnError) return _finally(err, null);
+      if (err) {
+        if (stopOnError) {
+          return _finally(err, null);
+        } else {
+          errors.push(err);
+        }
+      }
 
       index += 1;
       process(data);
@@ -338,7 +349,6 @@ util.async.sequential = function(options, cb) {
   if(_.isArray(options)) {
     options = { functions: options };
   }
-  console.log(options);
   callAsynchronousChain(options, cb);
 };
 
