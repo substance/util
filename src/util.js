@@ -244,6 +244,9 @@ util.Events.unbind = util.Events.off;
 util.Events.Listener = {
 
   listenTo: function(obj, name, callback) {
+    if (!_.isFunction(callback)) {
+      throw new Error("Illegal argument: expecting function as callback, was: " + callback);
+    }
 
     // initialize container for keeping handlers to unbind later
     this._handlers = this._handlers || [];
