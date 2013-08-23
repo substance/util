@@ -656,6 +656,9 @@ util.deepclone = function(obj) {
 // Calls obj's `clone` function if available,
 // otherwise clones the obj using `util.deepclone()`.
 util.clone = function(obj) {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
   if (_.isFunction(obj.clone)) {
     return obj.clone();
   }
