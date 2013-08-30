@@ -25,7 +25,7 @@ errors.SubstanceError = function(name, code, message) {
   this.__stack = util.callstack(1);
 };
 
-errors.SubstanceError.__prototype__ = function() {
+errors.SubstanceError.Prototype = function() {
 
   this.toString = function() {
     return this.name+":"+this.message;
@@ -45,7 +45,7 @@ errors.SubstanceError.__prototype__ = function() {
   };
 
 };
-errors.SubstanceError.prototype = new errors.SubstanceError.__prototype__();
+errors.SubstanceError.prototype = new errors.SubstanceError.Prototype();
 
 Object.defineProperty(errors.SubstanceError.prototype, "stack", {
   get: function() {
