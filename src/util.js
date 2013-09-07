@@ -696,6 +696,13 @@ util.later = function(f, context) {
   };
 };
 
+
+// Returns true if a string doesn't contain any real content
+
+util.isEmpty = function(str) {
+  return !str.match(/\w/);
+};
+
 // Export
 // ====
 
