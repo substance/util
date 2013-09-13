@@ -45,4 +45,16 @@ dom.getChildren = function(el) {
   return children;
 };
 
+dom.getNodeType = function(el) {
+  if (el.nodeType === Node.TEXT_NODE) {
+    return "text";
+  } else if (el.nodeType === Node.COMMENT_NODE) {
+    return "comment";
+  } else if (el.tagName) {
+    return el.tagName.toLowerCase();
+  } else {
+    throw new Error("Unknown node type");
+  }
+};
+
 module.exports = dom;
