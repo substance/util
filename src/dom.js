@@ -27,7 +27,9 @@ dom.ChildNodeIterator.prototype = {
   },
 
   back: function() {
-    this.pos -= 1;
+    if (this.pos >= 0) {
+      this.pos -= 1;
+    }
     return this;
   }
 };
