@@ -2,7 +2,8 @@
   "name": "substance-util",
   "description": "Provides Substance flowers for Substance gardeners.",
   "keywords": [
-    "substance"
+    "substance",
+    "helpers"
   ],
   "author": "Oliver Buchtala",
   "contributors": [
