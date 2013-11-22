@@ -263,8 +263,10 @@ util.Events.Listener = {
   },
 
   stopListening: function() {
-    for (var i = 0; i < this._handlers.length; i++) {
-      this._handlers[i].unbind();
+    if (this._handlers) {
+      for (var i = 0; i < this._handlers.length; i++) {
+        this._handlers[i].unbind();
+      }      
     }
   }
 
