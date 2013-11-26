@@ -650,6 +650,8 @@ util.diff = function(obj1, obj2) {
 // Note: this is currently done via JSON.parse(JSON.stringify(obj))
 //       which is in fact not optimal, as it depends on `toJSON` implementation.
 util.deepclone = function(obj) {
+  if (obj === undefined) return undefined;
+  if (obj === null) return null;
   return JSON.parse(JSON.stringify(obj));
 };
 
