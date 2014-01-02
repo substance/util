@@ -53,9 +53,14 @@ function callAsynchronousChain(options, cb) {
 
     // catch exceptions and propagat
     try {
-      if (func.length === 1) {
+      if (func.length === 0) {
+        func();
+        recursiveCallback(null, data);
+      }
+      else if (func.length === 1) {
         func(recursiveCallback);
-      } else {
+      }
+      else {
         func(data, recursiveCallback);
       }
     } catch (err) {
