@@ -130,9 +130,14 @@ Fragmenter.Prototype = function() {
   this.onEnter = function(/*entry, parentContext*/) {
     return null;
   };
+  this.onExit = function(/*entry, parentContext*/) {};
 
   this.enter = function(entry, parentContext) {
     return this.onEnter(entry, parentContext);
+  };
+
+  this.exit = function(entry, parentContext) {
+    this.onExit(entry, parentContext);
   };
 
   this.createText = function(context, text) {
@@ -173,6 +178,9 @@ Fragmenter.Prototype = function() {
           if (stack[level].entry.id === entry.id) {
             break;
           }
+        }
+        for (idx = level; idx < stack.length; idx++) {
+          this.exit(stack[idx].entry, stack[idx-1].context);
         }
         stack.splice(level, 1);
       }
