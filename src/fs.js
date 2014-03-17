@@ -1,5 +1,9 @@
 "use strict";
 
+// TODO: is this really needed anymore?
+
+var $ = window.$;
+
 // A minimal fs facette to load data in browser being node.js/fs compatible.
 var fs = {};
 
@@ -33,7 +37,7 @@ fs.readFile = function(dir, relPath, options, callback, context) {
       } else {
         convertedPath.pop();
       }
-    };
+    }
     convertedPath = convertedPath.join("/");
 
     $.get(convertedPath)

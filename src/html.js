@@ -2,6 +2,7 @@
 
 var html = {};
 var _ = require("underscore");
+var $ = window.$;
 
 html.templates = {};
 
@@ -24,7 +25,7 @@ if (typeof window !== "undefined") {
   // A fake console to calm down some browsers.
   if (!window.console) {
     window.console = {
-      log: function(msg) {
+      log: function() {
         // No-op
       }
     };

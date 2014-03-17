@@ -4,6 +4,7 @@
 // ====
 
 var _ = require('underscore');
+var $ = window.$;
 
 // Module
 // ====
@@ -199,7 +200,7 @@ util.Events = {
   triggerLater: function() {
     var self = this;
     var _arguments = arguments;
-    setTimeout(function() {
+    window.setTimeout(function() {
       self.trigger.apply(self, _arguments);
     }, 0);
   },
@@ -509,7 +510,7 @@ util.freeze = function(obj) {
 util.later = function(f, context) {
   return function() {
     var _args = arguments;
-    setTimeout(function() {
+    window.setTimeout(function() {
       f.apply(context, _args);
     }, 0);
   };
@@ -527,7 +528,7 @@ util.isEmpty = function(str) {
 util.slug = function(str) {
   str = str.replace(/^\s+|\s+$/g, ''); // trim
   str = str.toLowerCase();
-  
+
   // remove accents, swap ñ for n, etc
   var from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;";
   var to   = "aaaaeeeeiiiioooouuuunc------";
