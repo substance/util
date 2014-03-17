@@ -2,7 +2,6 @@
 
 var html = {};
 var _ = require("underscore");
-var $ = window.$;
 
 html.templates = {};
 
@@ -34,6 +33,7 @@ if (typeof window !== "undefined") {
 
 // Render Underscore templates
 html.tpl = function (tpl, ctx) {
+  var $ = window.$;
   ctx = ctx || {};
   var source = $('script[name='+tpl+']').html();
   return _.template(source, ctx);
