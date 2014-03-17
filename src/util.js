@@ -4,7 +4,6 @@
 // ====
 
 var _ = require('underscore');
-var $ = window.$;
 
 // Module
 // ====
@@ -334,7 +333,7 @@ util.getJSON = function(resource, cb) {
     cb(null, obj);
   } else {
     //console.log("util.getJSON", resource);
-    $.getJSON(resource)
+    window.$.getJSON(resource)
       .done(function(obj) { cb(null, obj); })
       .error(function(err) { cb(err, null); });
   }
