@@ -33,7 +33,7 @@ if (typeof window !== "undefined") {
 
 // Render Underscore templates
 html.tpl = function (tpl, ctx) {
-  var $ = window.$;
+  var $ = require("jquery");
   ctx = ctx || {};
   var source = $('script[name='+tpl+']').html();
   return _.template(source, ctx);

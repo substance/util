@@ -333,7 +333,8 @@ util.getJSON = function(resource, cb) {
     cb(null, obj);
   } else {
     //console.log("util.getJSON", resource);
-    window.$.getJSON(resource)
+    var $ = require("jquery");
+    $.getJSON(resource)
       .done(function(obj) { cb(null, obj); })
       .error(function(err) { cb(err, null); });
   }

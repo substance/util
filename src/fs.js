@@ -2,8 +2,6 @@
 
 // TODO: is this really needed anymore?
 
-var $ = window.$;
-
 // A minimal fs facette to load data in browser being node.js/fs compatible.
 var fs = {};
 
@@ -40,6 +38,7 @@ fs.readFile = function(dir, relPath, options, callback, context) {
     }
     convertedPath = convertedPath.join("/");
 
+    var $ = require("jquery");
     $.get(convertedPath)
       .done(function(data) {
         callback.call(context, null, data);

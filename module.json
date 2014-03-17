@@ -9,7 +9,8 @@
     "url": "https://github.com/substance/util.git"
   },
   "dependencies": {
-    "underscore": ""
+    "underscore": "",
+    "jquery": ""
   },
   "version": "0.3.0"
 }

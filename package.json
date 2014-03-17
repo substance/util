@@ -14,7 +14,8 @@
     "url": "https://github.com/substance/util.git"
   },
   "dependencies": {
-    "underscore": "1.5.x"
+    "underscore": "1.5.x",
+    "jquery": "2.1.x"
   },
   "version": "0.3.0",
   "engines": {
