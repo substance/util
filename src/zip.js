@@ -37,14 +37,9 @@ ziputil.unzip = function(zip, documentFactory) {
 
   if (rawDoc) {
     var jsonDoc = JSON.parse(rawDoc);
-
     var doc = documentFactory.createFromJSON(jsonDoc);
 
-    // var doc = EditableArticle.fromSnapshot(jsonDoc, {
-    //   chronicle: Chronicle.create()
-    // });
-
-    // Extract supplements
+    // Extract files
     var fileIndex = doc.getIndex("files");
 
     _.each(fileIndex.nodes, function(fileId) {
@@ -68,7 +63,7 @@ ziputil.unzipFromBase64 = function(data, documentFactory) {
 };
 
 ziputil.unzipFromArrayBuffer = function(data, documentFactory) {
-  var zip = new JSZip(data, documentFactory);
+  var zip = new JSZip(data);
   return ziputil.unzip(zip, documentFactory);
 };
 
