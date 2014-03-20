@@ -119,7 +119,7 @@ ziputil.zip = function(doc, cb) {
   _.each(files, function(file, fileName) {
     if (file.isBinary()) {
       tasks.push(function(cb) {
-        readBinaryStringFromBlob(file.getData(), function(err, bString) {
+        readBinaryStringFromBlob(file.getBlob(), function(err, bString) {
           binaryStrings[fileName] = bString;
           cb(null);
         });
