@@ -1,7 +1,6 @@
 "use strict";
 
 var _ = require("underscore");
-var $ = require("jquery");
 var async = require("./async");
 
 // var EditableArticle = require("../editable_article");
@@ -76,7 +75,7 @@ ziputil.unzipFromArrayBuffer = function(data, documentFactory) {
 // TODO: needs some love
 
 ziputil.zip = function(doc, cb) {
-  
+
   var FileReader = window.FileReader;
 
   // Helper to read a binary string from a blog
@@ -148,7 +147,11 @@ ziputil.zip = function(doc, cb) {
 
     zip.file("content.json", JSON.stringify(jsonDoc, null, "  "));
 
-    $.get("data/reader.tpl.html")
+    // ATTENTION: it is not allowed to use jquery from require here.
+    // When run in node-webkit jquery would live in the node context then
+    // not having access to the window's transport API
+    // TODO: we should resolve this by detecting node and use 'fs' in that case
+    window.$.get("data/reader.tpl.html")
     .done(function(indexHTML) {
       indexHTML = indexHTML.replace("{{{{TITLE}}}}", doc.title);
       zip.file("index.html", indexHTML);

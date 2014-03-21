@@ -327,13 +327,13 @@ util.inherits = function(parent, protoProps, staticProps) {
 // ----------
 
 util.getJSON = function(resource, cb) {
-  if (typeof exports !== 'undefined') {
+  if (typeof window === 'undefined' || typeof nwglobal !== 'undefined') {
     var fs = require('fs');
     var obj = JSON.parse(fs.readFileSync(resource, 'utf8'));
     cb(null, obj);
   } else {
     //console.log("util.getJSON", resource);
-    var $ = require("jquery");
+    var $ = window.$;
     $.getJSON(resource)
       .done(function(obj) { cb(null, obj); })
       .error(function(err) { cb(err, null); });
