@@ -11,6 +11,7 @@ if (typeof window === "undefined" || window.nw) {
   JSZip = window.JSZip;
 }
 
+
 // Utility for working with Substance Zip files
 // ------------
 //
@@ -59,12 +60,14 @@ ziputil.unzipFromArrayBuffer = function(data, documentFactory) {
   return ziputil.unzip(zip, documentFactory);
 };
 
-
 // Generates file based on the current doc in memory
 // --------
 //
 // Document gets stored as a zip archive
 // TODO: needs some love
+// 
+// TODO: now that we have arrayBuffer as our internal format
+// we can get rid of the FileReader nastyness
 
 ziputil.zip = function(doc, cb) {
 
