@@ -3,20 +3,13 @@
 var _ = require("underscore");
 var async = require("./async");
 
-// var EditableArticle = require("../editable_article");
-// var Chronicle = require("substance-chronicle");
-
-// any chance to have this as node-module?
-// var JSZip = window.JSZip;
-
 var JSZip;
 
-if (typeof window === "undefined") {
+if (typeof window === "undefined" || window.nw) {
   JSZip = require("jszip");
 } else {
   JSZip = window.JSZip;
 }
-
 
 // Utility for working with Substance Zip files
 // ------------
@@ -65,7 +58,6 @@ ziputil.unzipFromArrayBuffer = function(data, documentFactory) {
   var zip = new JSZip(data);
   return ziputil.unzip(zip, documentFactory);
 };
-
 
 
 // Generates file based on the current doc in memory
