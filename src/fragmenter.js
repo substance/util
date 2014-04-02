@@ -35,10 +35,7 @@ var EXIT = -1;
 // Currently, in such cases the first element that is opened earlier is preserved.
 
 var Fragmenter = function(levels) {
-  if (!levels) {
-    throw new Error("Requires a specification of element levels.");
-  }
-  this.levels = levels;
+  this.levels = levels || {};
 };
 
 Fragmenter.Prototype = function() {
@@ -111,7 +108,8 @@ Fragmenter.Prototype = function() {
   var extractEntries = function(annotations) {
     var entries = [];
     _.each(annotations, function(a) {
-      var l = this.levels[a.type];
+      // use a weak default level when not given
+      var l = this.levels[a.type] || 1000;
 
       // ignore annotations that are not registered
       if (l === undefined) {
