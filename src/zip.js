@@ -142,17 +142,7 @@ ziputil.zip = function(doc, cb) {
 
     zip.file("content.json", JSON.stringify(jsonDoc, null, "  "));
 
-    // ATTENTION: it is not allowed to use jquery from require here.
-    // When run in node-webkit jquery would live in the node context then
-    // not having access to the window's transport API
-    // TODO: we should resolve this by detecting node and use 'fs' in that case
-    window.$.get("data/reader.tpl.html")
-    .done(function(indexHTML) {
-      indexHTML = indexHTML.replace("{{{{TITLE}}}}", doc.title);
-      zip.file("index.html", indexHTML);
-      cb(null, zip);
-    })
-    .fail(cb);
+    cb(null, zip);
   });
 };
 
