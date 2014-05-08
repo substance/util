@@ -383,16 +383,24 @@ util.parseStackTrace = function(err) {
   for (idx = 0; idx < stackTrace.length; idx++) {
     var match = SAFARI_STACK_ELEM.exec(stackTrace[idx]);
     if (!match) match = CHROME_STACK_ELEM.exec(stackTrace[idx]);
+    var entry;
     if (match) {
-      var entry = {
+      entry = {
         func: match[1],
         file: match[2],
         line: match[3],
         col: match[4] || 0
       };
       if (entry.func === "") entry.func = "<anonymous>";
-      stack.push(entry);
+    } else {
+      entry = {
+        func: "",
+        file: stackTrace[idx],
+        line: "",
+        col: ""
+      };
     }
+    stack.push(entry);
   }
 
   return stack;
