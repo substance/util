@@ -5,7 +5,7 @@ var async = require("./async");
 
 var JSZip;
 
-if (typeof window === "undefined" || window.nw) {
+if (typeof window === "undefined" || window.native_app) {
   JSZip = require("jszip");
 } else {
   JSZip = window.JSZip;
@@ -65,7 +65,7 @@ ziputil.unzipFromArrayBuffer = function(data, documentFactory) {
 //
 // Document gets stored as a zip archive
 // TODO: needs some love
-// 
+//
 // TODO: now that we have arrayBuffer as our internal format
 // we can get rid of the FileReader nastyness
 
