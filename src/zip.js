@@ -39,9 +39,9 @@ ziputil.unzip = function(zip, documentFactory) {
       var file = doc.get(fileId);
 
       if (file.isText()) {
-        file.updateData(zip.files[file.id].asText());
+        file.setData(zip.files[file.id].asText());
       } else {
-        file.updateData(zip.files[file.id].asArrayBuffer());
+        file.setData(zip.files[file.id].asArrayBuffer());
       }
     }, this);
 
