@@ -9,8 +9,7 @@
     "url": "https://github.com/substance/util.git"
   },
   "dependencies": {
-    "underscore": "",
-    "jszip": "2.2.0"
+    "underscore": ""
   },
   "version": "0.3.0"
 }
