@@ -564,6 +564,18 @@ util.getReadableFileSizeString = function(fileSizeInBytes) {
     return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
 };
 
+util.getProp = function ( obj, path ) {
+  var i, retval = obj;
+  for ( i = 0; i < path.length; i++ ) {
+    if ( retval === undefined || retval === null ) {
+      // Trying to access a property of undefined or null causes an error
+      return undefined;
+    }
+    retval = retval[path[i]];
+  }
+  return retval;
+};
+
 // Export
 // ====
 
