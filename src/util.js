@@ -1,10 +1,5 @@
 "use strict";
 
-// Imports
-// ====
-
-var _ = require('underscore');
-
 // Module
 // ====
 
