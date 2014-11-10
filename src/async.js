@@ -1,5 +1,6 @@
 "use strict";
 
+var _ = require('underscore');
 var util = require("./util.js");
 
 // Helpers for Asynchronous Control Flow
