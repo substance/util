@@ -116,8 +116,8 @@ Fragmenter.Prototype = function() {
         return;
       }
 
-      entries.push({ pos : a.range[0], mode: ENTER, level: l, id: a.id, type: a.type });
-      entries.push({ pos : a.range[1], mode: EXIT, level: l, id: a.id, type: a.type });
+      entries.push({ pos : a.range[0], mode: ENTER, level: l, id: a.id, type: a.type, node: a });
+      entries.push({ pos : a.range[1], mode: EXIT, level: l, id: a.id, type: a.type, node: a });
     }, this);
     return entries;
   };
