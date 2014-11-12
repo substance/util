@@ -55,7 +55,7 @@ dom.getNodeType = function(el) {
   } else if (el.tagName) {
     return el.tagName.toLowerCase();
   } else {
-    throw new Error("Unknown node type");
+    throw new Error("Can't get node type for " + el);
   }
 };
 
