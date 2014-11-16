@@ -1,6 +1,7 @@
 {
   "name": "substance-util",
   "description": "Provides Substance flowers for Substance gardeners.",
+  "version": "0.2.0",
   "keywords": [
     "substance",
     "helpers"
@@ -16,7 +17,6 @@
   "dependencies": {
     "underscore": "1.5.x"
   },
-  "version": "0.2.0",
   "engines": {
     "node": ">=0.8.x",
     "npm": ">=1.1.x"

@@ -1,0 +1,9 @@
+{
+  "modules": [
+    {
+      "repository": "https://github.com/substance/util.git",
+      "folder": ".",
+      "branch": "lens"
+    }
+  ]
+}
