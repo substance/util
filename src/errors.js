@@ -1,31 +1,44 @@
 "use strict";
 
-// Imports
-// ====
-
-var _ = require('underscore');
 var util = require('./util');
-
-// Module
-// ====
 
 var errors = {};
 
-errors.SubstanceError = function(name, code, message) {
-  if (arguments.length == 1) {
-    message = name;
-    name = "SubstanceError";
-    code = -1;
+// The base class for Substance Errors
+// -------
+// We have been not so happy with the native error as it is really poor with respect to
+// stack information and presentation.
+// This implementation has a more usable stack trace which is rendered using `err.printStacktrace()`.
+// Moreover, it provides error codes and error chaining.
+var SubstanceError = function(message, rootError) {
+
+  // If a root error is given try to take over as much information as possible
+  if (rootError) {
+    Error.call(this, message, rootError.fileName, rootError.lineNumber);
+
+    if (rootError instanceof SubstanceError) {
+      this.__stack = rootError.__stack;
+    } else if (rootError.stack) {
+      this.__stack = util.parseStackTrace(rootError);
+    } else {
+      this.__stack = util.callstack(1);
+    }
+
+  }
+
+  // otherwise create a new stacktrace
+  else {
+    Error.call(this, message);
+    this.__stack = util.callstack(1);
   }
 
   this.message = message;
-  this.name = name;
-  this.code = code;
-
-  this.__stack = util.callstack(1);
 };
 
-errors.SubstanceError.Prototype = function() {
+SubstanceError.Prototype = function() {
+
+  this.name = "SubstanceError";
+  this.code = -1;
 
   this.toString = function() {
     return this.name+":"+this.message;
@@ -43,11 +56,12 @@ errors.SubstanceError.Prototype = function() {
   this.printStackTrace = function() {
     util.printStackTrace(this);
   };
-
 };
-errors.SubstanceError.prototype = new errors.SubstanceError.Prototype();
 
-Object.defineProperty(errors.SubstanceError.prototype, "stack", {
+SubstanceError.Prototype.prototype = Error.prototype;
+SubstanceError.prototype = new SubstanceError.Prototype();
+
+Object.defineProperty(SubstanceError.prototype, "stack", {
   get: function() {
     var str = [];
     for (var idx = 0; idx < this.__stack.length; idx++) {
@@ -56,14 +70,33 @@ Object.defineProperty(errors.SubstanceError.prototype, "stack", {
     }
     return str.join("\n");
   },
-  set: function() { throw new Error("immutable.")}
+  set: function() { throw new Error("SubstanceError.stack is read-only."); }
 });
 
-errors.define = function(className, code) {
+errors.SubstanceError = SubstanceError;
+
+
+var createSubstanceErrorSubclass = function(parent, name, code) {
+  return function(message) {
+    parent.call(this, message);
+    this.name = name;
+    this.code = code;
+  };
+};
+
+errors.define = function(className, code, parent) {
+  if (!className) throw new SubstanceError("Name is required.");
   if (code === undefined) code = -1;
-  errors[className] = errors.SubstanceError.bind(null, className, code);
-  errors[className].prototype = errors.SubstanceError.prototype;
-  return errors[className];
+
+  parent = parent || SubstanceError;
+  var ErrorClass = createSubstanceErrorSubclass(parent, className, code);
+  var ErrorClassPrototype = function() {};
+  ErrorClassPrototype.prototype = parent.prototype;
+  ErrorClass.prototype = new ErrorClassPrototype();
+  ErrorClass.prototype.constructor = ErrorClass;
+
+  errors[className] = ErrorClass;
+  return ErrorClass;
 };
 
 module.exports = errors;

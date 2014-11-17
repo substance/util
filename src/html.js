@@ -24,7 +24,7 @@ if (typeof window !== "undefined") {
   // A fake console to calm down some browsers.
   if (!window.console) {
     window.console = {
-      log: function(msg) {
+      log: function() {
         // No-op
       }
     };
@@ -34,7 +34,7 @@ if (typeof window !== "undefined") {
 // Render Underscore templates
 html.tpl = function (tpl, ctx) {
   ctx = ctx || {};
-  var source = $('script[name='+tpl+']').html();
+  var source = window.$('script[name='+tpl+']').html();
   return _.template(source, ctx);
 };
 

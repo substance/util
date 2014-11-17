@@ -48,9 +48,9 @@ dom.getChildren = function(el) {
 };
 
 dom.getNodeType = function(el) {
-  if (el.nodeType === Node.TEXT_NODE) {
+  if (el.nodeType === window.Node.TEXT_NODE) {
     return "text";
-  } else if (el.nodeType === Node.COMMENT_NODE) {
+  } else if (el.nodeType === window.Node.COMMENT_NODE) {
     return "comment";
   } else if (el.tagName) {
     return el.tagName.toLowerCase();
