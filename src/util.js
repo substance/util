@@ -573,6 +573,28 @@ util.getProp = function ( obj, path ) {
   return retval;
 };
 
+var Timer = function() {
+  this.startTime = Date.now();
+  this.lastStop = this.startTime;
+};
+
+Timer.prototype.stop = function() {
+  var endTime = Date.now();
+  var elapsedTime = endTime - this.lastStop;
+  this.lastStop = endTime;
+  return elapsedTime;
+};
+
+Timer.prototype.total = function() {
+  var endTime = Date.now();
+  var elapsedTime = endTime - this.startTime;
+  return elapsedTime;
+};
+
+util.startTimer = function() {
+  return new Timer();
+};
+
 // Export
 // ====
 
