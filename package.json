@@ -15,7 +15,7 @@
     "url": "https://github.com/substance/util.git"
   },
   "dependencies": {
-    "underscore": "1.5.x"
+    "underscore": "*"
   },
   "engines": {
     "node": ">=0.8.x",
